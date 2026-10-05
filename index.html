@@ -278,6 +278,7 @@ init(){
   this.render();
   this.initAuth();
   this.initMobile();
+  window.addEventListener('hashchange',()=>{const t=new URLSearchParams(location.hash.slice(1)).get('tpl');if(t){history.replaceState(null,'',location.pathname);this.applyTpl(t)}});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(this.user)this.pull();if(this.tm)this.tmTick()}});
 },
 TOD:{m:'Утро',d:'День',e:'Вечер','':'В любое время'},
