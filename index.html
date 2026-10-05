@@ -34,7 +34,7 @@ input:focus,textarea:focus,select:focus{border-color:rgba(196,164,255,.7);box-sh
 textarea{min-height:76px;resize:vertical}
 select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--mut) 50%),linear-gradient(135deg,var(--mut) 50%,transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px;background-repeat:no-repeat;padding-right:32px}
 .wrap{max-width:720px;margin:0 auto;padding:16px 16px calc(104px + env(safe-area-inset-bottom))}
-.top{display:flex;align-items:center;justify-content:space-between;padding:6px 0 16px}
+.top{display:flex;align-items:center;justify-content:space-between;padding:2px 0 10px}
 .logo{font-weight:900;letter-spacing:.2em;font-size:12px;text-transform:uppercase}
 .logo b{color:var(--pb);text-shadow:0 0 12px rgba(196,164,255,.8)}
 .ava{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:14px;background:linear-gradient(160deg,#D9C6FF,#9B6FE8 55%,#5B2FBE);color:#0B0614;box-shadow:var(--glow),inset 0 1px 0 rgba(255,255,255,.5)}
@@ -378,7 +378,7 @@ render(){
   $('nav').innerHTML='<div class="in">'+tabs.map(([k,l,ic])=>`<button class="${this.tab===k?'on':''}" onclick="APP.go('${k}')">${ic}<span>${l}</span></button>`).join('')+'</div>';
 },
 initial(){const n=(this.S.profile.name||(this.user&&this.user.email)||'').trim();return n?n[0].toUpperCase():'·'},
-top(){return `<div class="top"><button class="logo" onclick="APP.go('home')">12 <b>/</b> НЕДЕЛЬ</button>
+top(){return `<div class="top"><span></span>
   <button class="ava" onclick="APP.go('me')" aria-label="Личный кабинет">${esc(this.initial())}</button></div>`},
 pl(n,a,b,c){n=Math.abs(n)%100;const m=n%10;if(n>10&&n<20)return c;if(m>1&&m<5)return b;if(m===1)return a;return c},
 dleft(d){const n=diff(today(),d);return n<0?`просрочено на ${-n} дн.`:n===0?'сегодня':`через ${n} дн.`},
