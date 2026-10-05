@@ -268,6 +268,25 @@ function example(start){
 }
 function T(goal,title,type,o){return Object.assign({id:uid(),goal,title,type,target:1,per:1,days:7,unit:'',total:0,deadline:'',from:1,to:0,when:'',ifthen:'',min:'',active:true,tod:'',mins:0},o||{})}
 function H(title,o){return Object.assign({id:'h'+uid(),title,days:[0,1,2,3,4,5,6],created:today(),archived:false,when:'',tod:''},o||{})}
+/* Шаблоны спринтов: цель + тактики. Нейтральные, без личных данных. */
+const TPL=[
+ {id:'product',name:'Запуск продукта',icon:'◆',result:'К концу спринта продукт запущен, первые клиенты заплатили',color:'#00C4D4',
+  metrics:[{name:'Оплат',unit:'',target:5,auto:'paid'}],
+  tactics:[['Касания с потенциальными клиентами','count',{target:15,tod:'d'}],['Созвоны с предложением и ценой','count',{target:3,tod:'d'}],['Контент о продукте','count',{target:5,tod:'m'}],['Упаковать оффер: результат, срок, цена','ms',{week:2}],['Открыть продажи','ms',{week:5}]]},
+ {id:'body',name:'Тело к дате',icon:'●',result:'К дате финала форма, которую можно показать: вес, сила или выносливость по плану',color:'#9B6FE8',
+  metrics:[{name:'Вес',unit:'кг',target:0}],
+  tactics:[['Тренировка','count',{target:4,tod:'m'}],['Сон до 23:30','check',{target:6,tod:'e'}],['Еда по плану','check',{target:6,tod:'d'}],['Вода','num',{per:2,unit:'л',tod:''}],['Контрольное взвешивание','count',{target:1,tod:'m'}]]},
+ {id:'lang',name:'Язык до уровня',icon:'◇',result:'К концу спринта подтверждаю уровень тестом',color:'#C4A4FF',
+  metrics:[{name:'Балл теста',unit:'',target:0}],
+  tactics:[['Новые слова','num',{per:10,unit:'слов',total:800,tod:'m'}],['Говорю вживую','count',{target:2,tod:'d'}],['Тема грамматики','count',{target:3,tod:'m'}],['Повторяю за спикером 15 минут','check',{target:5,mins:15,tod:'e'}],['Читаю 10 страниц','num',{per:10,unit:'стр.',tod:'e'}]]},
+ {id:'content',name:'Контент 90 дней',icon:'▲',result:'К концу спринта 60 роликов выпущено, аудитория выросла по плану',color:'#5EE0EE',
+  metrics:[{name:'Подписчики',unit:'',target:0}],
+  tactics:[['Ролики','count',{target:5,total:60,tod:'d'}],['Посты','count',{target:3,tod:'d'}],['Сторис','count',{target:5,tod:''}],['Разбор статистики','count',{target:1,tod:'e'}],['Коллаборация','ms',{week:4}]]},
+ {id:'money',name:'Деньги под контролем',icon:'■',result:'К концу спринта подушка на N месяцев и ноль импульсных трат',color:'#7C4FD4',
+  metrics:[{name:'Накоплено',unit:'',target:0}],
+  tactics:[['Записать расходы дня','check',{target:7,tod:'e'}],['Перевод в накопления','count',{target:1,tod:'m'}],['Неделя без импульсных покупок','check',{target:6,tod:''}],['Разбор бюджета','count',{target:1,tod:'e'}]]},
+ {id:'own',name:'Своя цель',icon:'+',result:'',color:'#9B6FE8',metrics:[],tactics:[]}
+];
 function nextMonday(){const d=new Date();const w=d.getDay();if(w!==1)d.setDate(d.getDate()+((8-w)%7||7));return iso(d)}
 
 const APP={
@@ -404,6 +423,7 @@ ring(v,th,cap){const r=52,C=2*Math.PI*r,p=v==null?0:v/100,a=th/100*360-90,x=59+r
 /* ================= ГЛАВНОЕ ================= */
 vHome(){
   const S=this.S,td=today();
+  if(!S.goals.length&&!S.habits.length&&!(S.tasks||[]).length)return this.vOnboard();
   if(S.goals.length&&today()>this.end()&&!this._skipFinal)return this.vFinal();
   const inS=S.goals.length>0&&this.day>=this.st&&this.day<=this.end();
   const w=inS?this.weekOf(this.day):0,sc=inS?this.score(w):null,th=+S.sprint.threshold||85;
@@ -421,7 +441,7 @@ vHome(){
       <div><b>${bestS}</b><span>серия дн.</span></div>
       ${inS?`<div onclick="APP.wk=${w};APP.go('week')" style="cursor:pointer"><b>${sc??'—'}${sc!=null?'%':''}</b><span>неделя ${w}/${this.W}</span></div>`:`<div onclick="APP.go('goals')" style="cursor:pointer"><b>—</b><span>${S.goals.length?'вне спринта':'спринт'}</span></div>`}
     </div></div>`;
-  if(!S.goals.length)h+=`<div class="card small mut">Привычки и задачи работают сами по себе. Когда будешь готова к целям на 12 недель — <button class="btn sm" style="margin-left:4px" onclick="APP.go('goals')">настроить спринт</button></div>`;
+  if(!S.goals.length)h+=`<div class="card small mut">Привычки и задачи работают сами по себе. Когда будет готовность к целям на 12 недель — <button class="btn sm" style="margin-left:4px" onclick="APP.go('goals')">настроить спринт</button></div>`;
   else if(td<this.st)h+=`<div class="card small mut">Спринт начинается ${fd(this.st)}. Отмечать можно уже сейчас.</div>`;
   const wf=inS?(S.weeks[w]||{}).focus:'',ytop=((S.checkin||{})[add(this.day,-1)]||{}).top;
   h+=`<button class="quote" style="margin:14px 0;display:block;width:100%;text-align:left;${ytop?'':'opacity:.55'}" onclick="APP.editTop('${add(this.day,-1)}')"><span class="lbl" style="display:block;margin-bottom:2px">Главное на ${this.day===td?'сегодня':'этот день'}</span>${ytop?esc(ytop):'Задать одно дело, которое важнее остальных'}</button>`;
@@ -605,7 +625,61 @@ tRow(t,w,showGoal){
   return `<div class="tk ${done?'done':''} ${sk?'skip':''} ${this._pop===t.id?'pop':''}" data-lp="t:${t.id}"><div class="t" onclick="APP.editT('${t.id}')"><b>${dot}${esc(t.title)}</b><div class="meta">${meta}</div>
     <div class="bar ${done?'c':''}"><i style="width:${Math.min(wv/wt,1)*100}%"></i></div>${hint?`<div class="hint">${hint}</div>`:''}${tb}</div>${ctl}</div>`;
 },
-vOnboard(){return `<div class="lbl">Система 12 недель</div><div class="h1">Год длиной<br>в 12 недель</div>
+vOnboard(){if(!this._ob)this._ob={step:0,start:this.st,weeks:this.W,pick:[],own:[],name:this.S.profile.name||'',partner:'',ok:false};return this.obView()},
+obSet(k,v){this._ob[k]=v},
+obView(){const o=this._ob,st=o.step;
+  const dots=`<div class="row" style="gap:6px;margin-bottom:14px">${[0,1,2,3,4].map(i=>`<i style="height:4px;flex:1;border-radius:4px;background:${i<=st?'var(--p)':'var(--s3)'};${i<=st?'box-shadow:0 0 8px rgba(155,111,232,.6)':''}"></i>`).join('')}</div>`;
+  const nav=(back,next,label)=>`<div class="row" style="margin-top:18px">${back?`<button class="btn gh" onclick="APP._ob.step--;APP.render()">${I.l} Назад</button>`:''}<span class="sp"></span><button class="btn pr" onclick="${next}">${label||'Дальше'} ${I.r}</button></div>`;
+  if(st===0)return `<div class="lbl">Система 12 недель</div><div class="h1">Год длиной<br>в 12 недель</div>${dots}
+   <div class="card"><p style="margin-top:0">За 12 недель успевают больше, чем за год, потому что дедлайн всегда близко.</p>
+   <div class="list-item"><b style="font-family:var(--mono);color:var(--pb)">01</b><span>Не больше трёх целей. Остальное подождёт.</span></div>
+   <div class="list-item"><b style="font-family:var(--mono);color:var(--pb)">02</b><span>Под каждой — тактики: действия, которые полностью под твоим контролем.</span></div>
+   <div class="list-item"><b style="font-family:var(--mono);color:var(--pb)">03</b><span>Каждый день отметка, раз в неделю счёт. Закрыто 85% тактик — цель будет достигнута.</span></div>
+   ${nav(false,"APP._ob.step=1;APP.render()",'Начать')}</div>
+   <div class="card small mut">Уже есть аккаунт? <button class="btn sm" style="margin-left:4px" onclick="APP.go('me')">Войти</button></div>`;
+  if(st===1)return `<div class="lbl">Шаг 1 из 4</div><div class="h1">Когда<br>стартуем</div>${dots}
+   <div class="card"><div class="f"><label class="lbl">Дата старта</label><input type="date" value="${o.start}" onchange="APP.obSet('start',this.value)"><div class="small dim" style="margin-top:6px">Лучше понедельник: неделя считается с него.</div></div>
+   <div class="f"><label class="lbl">Длина спринта</label><div class="seg">${[8,12,16].map(w=>`<button class="${+o.weeks===w?'on':''}" onclick="APP.obSet('weeks',${w});APP.render()">${w} недель</button>`).join('')}</div></div>
+   ${nav(true,"APP._ob.step=2;APP.render()")}</div>`;
+  if(st===2){const n=o.pick.length+o.own.length;return `<div class="lbl">Шаг 2 из 4 · выбрано ${n} из 3</div><div class="h1">Три цели,<br>не больше</div>${dots}
+   <div class="small mut" style="margin-bottom:10px">Выбери готовые дорожки или добавь свою. В каждой уже есть тактики, их можно менять.</div>
+   ${TPL.map(t=>{const on=t.id==='own'?false:o.pick.includes(t.id);const full=n>=3&&!on;
+     return `<button class="card" style="width:100%;text-align:left;display:block;margin:8px 0;${on?'border-color:rgba(196,164,255,.6);box-shadow:var(--glow),inset 0 1px 0 rgba(255,255,255,.12)':''}${full?';opacity:.4':''}" ${full?'disabled':''} onclick="${t.id==='own'?'APP.obOwn()':`APP.obPick('${t.id}')`}">
+     <div class="row"><span style="font-family:var(--mono);color:${t.color};font-size:18px">${t.icon}</span><b class="sp">${t.name}</b>${on?`<span class="chk on" style="width:28px;height:28px;border-radius:9px">${I.ok2}</span>`:''}</div>
+     <div class="small mut" style="margin-top:4px">${t.id==='own'?'Название, результат и свои тактики':esc(t.result)+' · '+t.tactics.length+' тактик'}</div></button>`}).join('')}
+   ${o.own.map((g,i)=>`<div class="card" style="border-color:rgba(196,164,255,.6)"><div class="row"><span style="font-family:var(--mono);color:var(--pb);font-size:18px">+</span><b class="sp">${esc(g.title)}</b><button class="btn sm gh" onclick="APP._ob.own.splice(${i},1);APP.render()">Убрать</button></div><div class="small mut" style="margin-top:4px">${esc(g.result)}</div></div>`).join('')}
+   ${nav(true,n?"APP.obBuild();APP._ob.step=3;APP.render()":"APP.toast('Выбери хотя бы одну цель')")}`}
+  if(st===3)return `<div class="lbl">Шаг 3 из 4</div><div class="h1">Тактики<br>на неделю</div>${dots}
+   <div class="small mut" style="margin-bottom:10px">Оставь только то, что реально будешь делать. Лучше 4 тактики по 85%, чем 8 по 40%.</div>
+   ${o.goals.map(g=>`<div class="card"><div class="row"><span class="dot" style="background:${g.color}"></span><input value="${esc(g.title)}" style="font-weight:700;background:transparent;border:0;padding:4px 0;box-shadow:none" onchange="APP._ob.goals.find(x=>x.id==='${g.id}').title=this.value"></div>
+     <textarea style="margin-top:6px;min-height:52px" placeholder="Результат: что будет правдой в конце спринта" onchange="APP._ob.goals.find(x=>x.id==='${g.id}').result=this.value">${esc(g.result)}</textarea>
+     ${o.tactics.filter(t=>t.goal===g.id).map(t=>`<label class="list-item" style="cursor:pointer"><input type="checkbox" style="width:auto" ${t.on?'checked':''} onchange="APP._ob.tactics.find(x=>x.id==='${t.id}').on=this.checked"><div class="sp"><div>${esc(t.title)}</div><div class="small mut">${this.tDesc(t)}</div></div></label>`).join('')}
+     <button class="btn sm" style="margin-top:8px" onclick="APP.obAddT('${g.id}')">${I.plus} Своя тактика</button></div>`).join('')}
+   ${nav(true,"APP._ob.step=4;APP.render()")}`;
+  return `<div class="lbl">Шаг 4 из 4</div><div class="h1">Обяза-<br>тельство</div>${dots}
+   <div class="card"><div class="f"><label class="lbl">Как тебя зовут</label><input value="${esc(o.name)}" placeholder="Имя" onchange="APP.obSet('name',this.value)"></div>
+   <div class="quote" style="margin:14px 0">Я, <b>${esc(o.name)||'…'}</b>, с ${fd(o.start)} по ${fd(add(o.start,o.weeks*7-1))} работаю над ${o.goals.length===1?'одной целью':o.goals.length+' целями'}: ${o.goals.map(g=>esc(g.title)).join(', ')}. Каждый день отмечаю сделанное, каждое воскресенье смотрю счёт недели и держу планку 85%.</div>
+   <div class="f"><label class="lbl">Партнёр по подотчётности (необязательно)</label><input value="${esc(o.partner)}" placeholder="Кому будешь отправлять отчёт по воскресеньям" onchange="APP.obSet('partner',this.value)"><div class="small dim" style="margin-top:6px">Люди, которые отчитываются другому человеку, доходят до цели заметно чаще.</div></div>
+   <label class="row" style="cursor:pointer;margin-top:8px"><input type="checkbox" style="width:auto" ${o.ok?'checked':''} onchange="APP.obSet('ok',this.checked)"> Подтверждаю и начинаю</label>
+   ${nav(true,"APP.obFinish()",'Начать спринт')}</div>`},
+obPick(id){const o=this._ob;if(o.pick.includes(id))o.pick=o.pick.filter(x=>x!==id);else if(o.pick.length+o.own.length<3)o.pick.push(id);this.render()},
+obOwn(){const o=this._ob;if(o.pick.length+o.own.length>=3)return this.toast('Уже три цели');
+  this.open(`<div class="row"><div class="h2 sp">Своя цель</div><button class="btn sm gh" onclick="APP.close()">Закрыть</button></div>
+  <div class="f"><label class="lbl">Короткое название</label><input id="ogT" placeholder="Например: Бизнес"></div>
+  <div class="f"><label class="lbl">Результат в конце спринта</label><textarea id="ogR" placeholder="Конкретно и измеримо, с датой"></textarea></div>
+  <button class="btn pr w" onclick="const t=$('ogT').value.trim();if(!t)return APP.toast('Нужно название');APP._ob.own.push({title:t,result:$('ogR').value.trim()});APP.close();APP.render()">Добавить</button>`)},
+obBuild(){const o=this._ob;if(o.goals&&o.built===o.pick.join(',')+'|'+o.own.length)return;
+  o.goals=[];o.tactics=[];let ci=0;
+  o.pick.forEach(id=>{const t=TPL.find(x=>x.id===id),gid=uid();o.goals.push({id:gid,title:t.name,result:t.result,color:t.color,date:'',woop:{},metrics:t.metrics.map(m=>Object.assign({id:uid(),start:0,cur:0},m))});
+    t.tactics.forEach(([title,type,x])=>{const ex=Object.assign({},x);if(ex.week){ex.deadline=add(o.start,ex.week*7-1);delete ex.week}o.tactics.push(Object.assign(T(gid,title,type,ex),{on:true}))})});
+  o.own.forEach(g=>{o.goals.push({id:uid(),title:g.title,result:g.result,color:COLORS[(ci++)%COLORS.length],date:'',woop:{},metrics:[]})});
+  o.built=o.pick.join(',')+'|'+o.own.length},
+obAddT(gid){const t=prompt('Тактика (начни с глагола): например «Провожу спарринг»');if(!t||!t.trim())return;this._ob.tactics.push(Object.assign(T(gid,t.trim(),'count',{target:3}),{on:true}));this.render()},
+obFinish(){const o=this._ob;if(!o.ok)return this.toast('Поставь галочку обязательства');if(!(o.name||'').trim())return this.toast('Напиши имя');
+  const S=this.S;S.sprint.start=o.start;S.sprint.weeks=+o.weeks||12;S.sprint.partner=o.partner||'';S.profile.name=o.name.trim();
+  S.goals=o.goals;S.tactics=o.tactics.filter(t=>t.on).map(t=>{delete t.on;return t});S.commit={name:S.profile.name,date:today(),start:o.start};
+  this._ob=null;this.day=this.clampDay(today());this.save();this.buzz([20,40,20]);this.go('home');this.toast('Спринт начат')},
+vOnboardOld(){return `<div class="lbl">Система 12 недель</div><div class="h1">Год длиной<br>в 12 недель</div>
   <div class="card"><p style="margin-top:0">Три цели на 12 недель, под каждой несколько тактик: конкретных действий, которые полностью под твоим контролем. Каждый день отмечаешь сделанное, раз в неделю смотришь счёт. Закрыто 85% тактик недели — значит, цель будет достигнута.</p>
   <div class="f"><label class="lbl">Дата старта (лучше понедельник)</label><input type="date" id="obStart" value="${this.st}"></div>
   <div class="f"><label class="lbl">Длина спринта, недель</label><input type="number" id="obW" value="${this.W}" min="1" max="26"></div>
@@ -942,6 +1016,7 @@ vMe(){
      <div><b>${bestH}</b><span>рекорд серии</span></div><div><b>${S.deals.filter(d=>!d.lost&&d.stage>=4).length}</b><span>оплат</span></div></div>
     <div class="card"><div class="f"><label class="lbl">Имя</label><input value="${esc(S.profile.name)}" onchange="APP.S.profile.name=this.value;APP.save();APP.render()"></div></div>`;
   }
+  if(S.commit)h+=`<div class="card"><div class="lbl">Обязательство</div><div class="quote" style="margin-top:8px">Я, <b>${esc(S.commit.name)}</b>. Обязательство принято ${fd(S.commit.date)}. Спринт с ${fd(S.commit.start)}: ${S.goals.map(g=>esc(g.title)).join(', ')||'—'}.</div></div>`;
   h+=`<div class="card"><div class="lbl">Спринт</div><div class="f"><label class="small mut">Название</label><input value="${esc(S.sprint.title)}" onchange="APP.S.sprint.title=this.value;APP.save()"></div>
    <div class="f3"><div><label class="small mut">Старт</label><input type="date" value="${S.sprint.start}" onchange="APP.S.sprint.start=this.value;APP.save();APP.render()"></div>
    <div><label class="small mut">Недель</label><input type="number" min="1" max="26" value="${this.W}" onchange="APP.S.sprint.weeks=+this.value||12;APP.save();APP.render()"></div>
