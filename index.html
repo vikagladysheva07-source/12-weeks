@@ -454,7 +454,7 @@ render(){
   else body={home:this.vHome,habits:this.vHabits,goals:this.vGoals,week:this.vWeek,me:this.vMe}[this.tab].call(this);
   $('app').innerHTML=this.top()+body;
   const simple=this.simple();
-  const tabs=simple?[['home','Главное',I.home],['week','Неделя',I.week],['me','Я',I.me]]:[['home','Главное',I.home],['habits','Привычки',I.habit],['goals','Цели',I.goal],['week','Неделя',I.week],['me','Я',I.me]];
+  const tabs=simple?[['home','Главное',I.home],['week','Неделя',I.week],['me','Я',I.me]]:[['home','Главное',I.home],['habits','Привычки',I.habit],['goals','Программа',I.goal],['week','Неделя',I.week],['me','Я',I.me]];
   this._pop=null;
   $('nav').innerHTML='<div class="in" style="grid-template-columns:repeat('+tabs.length+',1fr)">'+tabs.map(([k,l,ic])=>`<button class="${this.tab===k?'on':''}" onclick="APP.go('${k}')">${ic}<span>${l}</span></button>`).join('')+'</div>';
 },
@@ -492,7 +492,7 @@ vHome(){
     </div></div>`;
   if(inS&&this.mode==='strict'&&this.day===td&&this.dayFull(add(td,-1))===false&&this.dayIndex(td)>1)h+=`<div class="card small" style="border-color:rgba(196,164,255,.4)"><b>Вчера день не закрыт.</b> По правилам программы счётчик начался заново: сегодня день 1. Сбросов за программу: ${this.strictResets()}.</div>`;
   if(inS&&this.prog())h+=`<div class="row small mut" style="margin:2px 2px 0"><span class="dot" style="background:${this.prog().color}"></span><span class="sp">${esc(this.prog().name)} · день ${Math.max(1,this.dayIndex(this.day))} из ${this.sprintDays()}</span><button class="pill" onclick="APP.openSub('programs')">программы</button></div>`;
-  if(!S.goals.length)h+=`<div class="card small mut">Привычки и задачи работают сами по себе. Когда будет готовность к целям на 12 недель — <button class="btn sm" style="margin-left:4px" onclick="APP._ob=null;APP.go('goals')">настроить спринт</button></div>`;
+  if(!S.goals.length)h+=`<div class="card small mut">Привычки и задачи работают сами по себе. Когда будет готовность к программе — <button class="btn sm" style="margin-left:4px" onclick="APP._ob=null;APP.go('goals')">выбрать программу</button></div>`;
   else if(td<this.st)h+=`<div class="card small mut">Спринт начинается ${fd(this.st)}. Отмечать можно уже сейчас.</div>`;
   const wf=inS?(S.weeks[w]||{}).focus:'',ytop=((S.checkin||{})[add(this.day,-1)]||{}).top;
   h+=`<button class="quote" style="margin:14px 0;display:block;width:100%;text-align:left;${ytop?'':'opacity:.55'}" onclick="APP.editTop('${add(this.day,-1)}')"><span class="lbl" style="display:block;margin-bottom:2px">Главное на ${this.day===td?'сегодня':'этот день'}</span>${ytop?esc(ytop):'Задать одно дело, которое важнее остальных'}</button>`;
@@ -749,14 +749,14 @@ obStart(ex){const s=$('obStart').value||this.st;this.S.sprint.start=s;this.S.spr
 /* ================= ПРОГРАММЫ ================= */
 vPrograms(){const cur=this.S.sprint.program,inS=this.S.goals.length>0;
   let h=`<button class="back" onclick="APP.sub=null;APP.render()">${I.l} Назад</button><div class="lbl">Каталог</div><div class="h1">Программы</div>
-  <div class="small mut" style="margin:6px 0 14px">Одна длинная программа за раз. Короткие челленджи добавляются внутрь неё во вкладке «Цели».</div>`;
+  <div class="small mut" style="margin:6px 0 14px">Одна длинная программа за раз. Короткие челленджи добавляются внутрь неё во вкладке «Программа».</div>`;
   PROGRAMS.forEach(p=>{const on=inS&&cur===p.id;const len=p.days?p.days+' дней':p.fixed?'1 окт — 1 янв':p.weeks+' недель';
     const modeTxt={score:'планка 85%',strict:'строгий: пропуск — заново',count:'копилка дней'}[p.mode];
     h+=`<div class="card" style="${on?'border-color:rgba(196,164,255,.6);box-shadow:var(--glow),inset 0 1px 0 rgba(255,255,255,.12)':''}">
      <div class="row"><span style="font-family:var(--mono);font-size:20px;color:${p.color}">${p.glyph}</span><div class="sp"><div class="h2" style="font-size:17px">${esc(p.name)}</div><div class="small mut">${esc(p.origin)}</div></div>${on?'<span class="pill c">идёт</span>':''}</div>
      <div class="row" style="margin-top:10px;gap:6px;flex-wrap:wrap"><span class="pill">${len}</span><span class="pill ${p.mode==='strict'?'p':''}">${modeTxt}</span></div>
      <div style="margin-top:10px">${p.rules.map(r=>`<div class="small" style="padding:4px 0;border-bottom:1px solid var(--line)">${esc(r)}</div>`).join('')}</div>
-     <button class="btn ${on?'':'pr'} w" style="margin-top:12px" onclick="${on?`APP.go('goals')`:`APP.startProgram('${p.id}')`}">${on?'Открыть цели':inS?'Начать вместо текущей':'Начать'}</button></div>`});
+     <button class="btn ${on?'':'pr'} w" style="margin-top:12px" onclick="${on?`APP.go('goals')`:`APP.startProgram('${p.id}')`}">${on?'Открыть программу':inS?'Начать вместо текущей':'Начать'}</button></div>`});
   return h},
 startProgram(id){const p=PROGRAMS.find(x=>x.id===id);if(!p)return;
   if(this.S.goals.length){if(!confirm('Текущая программа уйдёт в архив вместе с отметками. Привычки и задачи останутся. Продолжить?'))return;
@@ -850,7 +850,9 @@ hArch(id,v){const x=this.S.habits.find(h=>h.id===id);x.archived=v;this.save();th
 vGoals(){
   const S=this.S,th=+S.sprint.threshold||85,cw=this.curWeek(),W=this.W;
   if(!S.goals.length)return this.vOnboard();
-  let h=`<div class="lbl">${fd(this.st)} — ${fd(this.end())}</div><div class="h1">Цели</div>`;
+  const P=this.prog(),modeTxt={score:'планка 85%',strict:'строгий режим',count:'копилка дней'}[this.mode];
+  let h=`<div class="lbl">${fd(this.st)} — ${fd(this.end())} · ${modeTxt}</div><div class="h1">${P?esc(P.name):'Программа'}</div>
+  <div class="row small mut" style="margin:8px 2px 4px"><span class="sp">День ${Math.max(1,Math.min(this.dayIndex(today()),this.sprintDays()))} из ${this.sprintDays()}${P?' · '+esc(P.origin):''}</span><button class="pill" onclick="APP.openSub('programs')">сменить</button></div>`;
   S.goals.forEach((g,gi)=>{
     const ms=g.metrics||[],tot=S.tactics.filter(t=>t.goal===g.id&&t.total&&!ms.some(m=>m.auto==='t:'+t.id)),ts=S.tactics.filter(t=>t.goal===g.id);
     h+=`<div class="card"><div class="row"><span class="dot" style="background:${g.color}"></span><span class="h2 sp" style="font-size:17px">${esc(g.title)}</span>
@@ -957,7 +959,7 @@ vDeals(){
   const ds=this.S.deals,f=this._df||'open';
   const reach=STAGES.map((_,i)=>ds.filter(d=>(d.max??d.stage)>=i).length);
   const sum=ds.filter(d=>!d.lost&&d.stage>=4).reduce((s,d)=>s+(+d.amount||0),0);
-  let h=`<button class="back" onclick="APP.go('goals')">${I.l} Цели</button><div class="lbl">Продажи</div><div class="h1">Воронка</div>
+  let h=`<button class="back" onclick="APP.go('goals')">${I.l} Программа</button><div class="lbl">Продажи</div><div class="h1">Воронка</div>
   <div class="card"><div class="fun">${STAGES.map((s,i)=>`<div class="st"><span class="small">${s}</span><div><div class="b" style="width:${reach[0]?Math.max(reach[i]/reach[0]*100,reach[i]?4:0):0}%"></div></div><b style="text-align:right">${reach[i]}</b></div>`).join('')}</div>
   <div class="kv" style="margin-top:14px"><div><b>${reach[0]?Math.round(reach[1]/reach[0]*100):0}%</b><span>касание→созвон</span></div><div><b>${reach[1]?Math.round(reach[4]/reach[1]*100):0}%</b><span>созвон→оплата</span></div><div><b>${sum?sum.toLocaleString('ru'):'—'}</b><span>сумма оплат</span></div></div></div>
   <button class="btn pr w" onclick="APP.editDeal(null)">${I.plus} Новый контакт</button>
@@ -1029,7 +1031,7 @@ vWeek(){
   if(!this.simple()&&(w%4===0||w===this.W))h+=this.monthBlock(w);
   return h;
 },
-setW(w,k,v){this.S.weeks[w]=this.S.weeks[w]||{};this.S.weeks[w][k]=v;this.save();if(this.simple()&&(k==='commit'||k==='worked')&&v&&String(v).trim()){this.setSimple(false);this.toast('Первый разбор сделан — открыты «Цели» и «Привычки»')}},
+setW(w,k,v){this.S.weeks[w]=this.S.weeks[w]||{};this.S.weeks[w][k]=v;this.save();if(this.simple()&&(k==='commit'||k==='worked')&&v&&String(v).trim()){this.setSimple(false);this.toast('Первый разбор сделан — открыты «Программа» и «Привычки»')}},
 report(w){const S=this.S,ws=S.weeks[w]||{},ds=this.wDays(w),ts=S.tactics.filter(t=>this.activeIn(t,w));
   let r=`${S.sprint.title} · неделя ${w}/${this.W} (${fd(ds[0])}–${fd(ds[6])})\nСчёт: ${this.score(w)??'—'}% при цели ${S.sprint.threshold}%\n`;
   S.goals.forEach(g=>r+=`• ${g.title}: ${this.score(w,g.id)??'—'}%\n`);
@@ -1111,7 +1113,7 @@ vMe(){
    <div><label class="small mut">Планка %</label><input type="number" min="50" max="100" value="${S.sprint.threshold}" onchange="APP.S.sprint.threshold=+this.value||85;APP.save()"></div></div>
    <div class="f"><label class="small mut">Заморозок дня в месяц</label><input type="number" min="0" max="31" value="${this.frzLimit()}" onchange="APP.S.pref=APP.S.pref||{};APP.S.pref.freezes=Math.max(0,+this.value||0);APP.save()"><div class="small dim" style="margin-top:6px">Мало заморозок — они тратятся осознанно. Две в месяц хватает на болезнь и перелёт.</div></div></div>
   <div class="card"><div class="lbl">Видение: зачем мне всё это (3 года)</div><textarea style="margin-top:8px" placeholder="Какой я хочу видеть свою жизнь через 3 года." onchange="APP.S.sprint.vision=this.value;APP.save()">${esc(S.sprint.vision)}</textarea></div>
-  <div class="card"><div class="row"><div class="sp"><div class="lbl">Режим</div><div class="small mut" style="margin-top:4px">${this.simple()?'Просто: Главное, Неделя, Я. Полный откроется сам после первого разбора недели.':'Полный: плюс Цели с метриками и темпом, Привычки с сеткой месяца, итоги месяца, разбор с Claude.'}</div></div>
+  <div class="card"><div class="row"><div class="sp"><div class="lbl">Режим</div><div class="small mut" style="margin-top:4px">${this.simple()?'Просто: Главное, Неделя, Я. Полный откроется сам после первого разбора недели.':'Полный: плюс Программа с метриками и темпом, Привычки с сеткой месяца, итоги месяца, разбор с Claude.'}</div></div>
    <button class="btn sm" onclick="APP.setSimple(${this.simple()?'false':'true'})">${this.simple()?'Открыть полный':'Включить «Просто»'}</button></div></div>
   <div class="card"><div class="row"><div class="sp"><div class="lbl">Программа</div><div class="small mut" style="margin-top:4px">${this.prog()?esc(this.prog().name)+' · '+({score:'планка 85%',strict:'строгий режим',count:'копилка дней'}[this.mode]):'не выбрана'}</div></div><button class="btn sm" onclick="APP.openSub('programs')">Каталог</button></div></div>
   <div class="card"><div class="lbl">Поделиться системой</div><div class="small mut" style="margin-top:8px">Ссылка с твоими целями, тактиками и привычками, без отметок и воронки. Человек открывает её и получает такую же систему, которую может изменить под себя.</div>
