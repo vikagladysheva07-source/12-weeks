@@ -262,7 +262,7 @@ const APP={
 S:null,tab:'home',sub:null,day:today(),wk:null,
 sb:null,user:null,cloud:'off',
 
-fresh(){return {v:2,profile:{name:''},sprint:{title:'12 недель',start:nextMonday(),weeks:12,threshold:85,vision:'',partner:''},goals:[],tactics:[],habits:[],log:{},hlog:{},lt:{},weeks:{},deals:[],del:[],archive:[],skip:{},checkin:{},pref:{group:'tod'},t:0}},
+fresh(){return {v:2,profile:{name:''},sprint:{title:'12 недель',start:nextMonday(),weeks:12,threshold:85,vision:'',partner:''},goals:[],tactics:[],habits:[],log:{},hlog:{},lt:{},weeks:{},deals:[],del:[],archive:[],skip:{},checkin:{},pref:{group:'tod'},tasks:[],t:0}},
 norm(s){const f=this.fresh();for(const k in f)if(s[k]==null)s[k]=f[k];return s},
 load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.sprint)return this.norm(s)}catch(e){}return this.fresh()},
 save(){this.S.t=Date.now();try{localStorage.setItem(KEY,JSON.stringify(this.S))}catch(e){}
@@ -307,7 +307,7 @@ end(){return add(this.st,this.W*7-1)},
 weekOf(d){return Math.floor(diff(this.st,d)/7)+1},
 wDays(w){const s=add(this.st,(w-1)*7);return [0,1,2,3,4,5,6].map(i=>add(s,i))},
 curWeek(){return Math.min(Math.max(this.weekOf(today()),1),this.W)},
-clampDay(d){if(d<this.st)return this.st;if(d>this.end())return this.end();return d},
+clampDay(d){return d},
 
 /* ---------- тактики и счёт ---------- */
 goal(id){return this.S.goals.find(g=>g.id===id)},
@@ -366,7 +366,7 @@ tHabitToggle(tid,d){if(d>today()||d<this.st)return;const t=this.S.tactics.find(x
 /* ---------- навигация ---------- */
 go(tab,sub){this.tab=tab;this.sub=sub||null;try{sessionStorage.setItem('tw-tab',tab)}catch(e){}window.scrollTo(0,0);this.render()},
 openSub(sub){this.sub=sub;window.scrollTo(0,0);this.render()},
-shiftDay(n){const d=add(this.day,n);if(d<this.st||d>this.end())return;this.day=d;this.render()},
+shiftDay(n){const d=add(this.day,n);if(d>add(today(),30))return;this.day=d;this.render()},
 goDay(d){this.day=d;this.go('home')},
 render(){
   let body;
@@ -382,39 +382,45 @@ top(){return `<div class="top"><button class="logo" onclick="APP.go('home')">12 
   <button class="ava" onclick="APP.go('me')" aria-label="Личный кабинет">${esc(this.initial())}</button></div>`},
 pl(n,a,b,c){n=Math.abs(n)%100;const m=n%10;if(n>10&&n<20)return c;if(m>1&&m<5)return b;if(m===1)return a;return c},
 dleft(d){const n=diff(today(),d);return n<0?`просрочено на ${-n} дн.`:n===0?'сегодня':`через ${n} дн.`},
-ring(v,th){const r=52,C=2*Math.PI*r,p=v==null?0:v/100,a=th/100*360-90,x=59+r*Math.cos(a*Math.PI/180),y=59+r*Math.sin(a*Math.PI/180);
+ring(v,th,cap){const r=52,C=2*Math.PI*r,p=v==null?0:v/100,a=th/100*360-90,x=59+r*Math.cos(a*Math.PI/180),y=59+r*Math.sin(a*Math.PI/180);
   const col=v!=null&&v>=th?'url(#rc)':'url(#rg)';
   return `<div class="ring"><svg width="118" height="118"><defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#C4A4FF"/><stop offset="1" stop-color="#7C4FD4"/></linearGradient><linearGradient id="rc" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7FEBF5"/><stop offset="1" stop-color="#009BAB"/></linearGradient></defs><circle cx="59" cy="59" r="${r}" stroke="rgba(0,0,0,.45)" stroke-width="9" fill="none"/><circle cx="59" cy="59" r="${r}" stroke="rgba(255,255,255,.05)" stroke-width="9" fill="none"/>
    <circle cx="59" cy="59" r="${r}" stroke="${col}" stroke-width="9" fill="none" stroke-linecap="round" stroke-dasharray="${C*p} ${C}" transform="rotate(-90 59 59)"/>
-   <circle cx="${x}" cy="${y}" r="3.5" fill="var(--tx)"/></svg><div class="v"><div><b>${v??'—'}${v!=null?'%':''}</b><span>ЦЕЛЬ ${th}</span></div></div></div>`},
+   <circle cx="${x}" cy="${y}" r="3.5" fill="var(--tx)"/></svg><div class="v"><div><b>${v??'—'}${v!=null?'%':''}</b><span>${cap||'ЦЕЛЬ '+th}</span></div></div></div>`},
 
 /* ================= ГЛАВНОЕ ================= */
 vHome(){
-  const S=this.S;
-  if(!S.goals.length)return this.vOnboard();
-  if(today()>this.end()&&!this._skipFinal)return this.vFinal();
-  const w=this.weekOf(this.day),sc=this.score(w),th=+S.sprint.threshold||85,td=today();
-  const left=Math.max(diff(td,this.end())+1,0),before=td<this.st;
-  const ts=S.tactics.filter(t=>this.activeIn(t,w));
-  const doneN=ts.filter(t=>this.wDone(t,w)).length,need=Math.max(Math.ceil(ts.length*th/100)-doneN,0);
-  const nm=(S.profile.name||'').split(' ')[0];
-  let h=`<div class="lbl">${nm?'Привет, '+esc(nm)+' · ':''}${esc(S.sprint.title)}</div>
-  <div class="h1">Неделя ${before?0:Math.min(this.weekOf(td),this.W)}<span style="opacity:.5">/${this.W}</span></div>
-  <div class="card hero" style="margin-top:16px">${this.ring(sc,th)}
-    <div><div class="lbl">Счёт недели ${w}</div>
-      <div style="margin-top:6px;font-size:14px">${need?`До ${th}% осталось закрыть <b>${need}</b> ${this.pl(need,'тактику','тактики','тактик')}`:`Планка ${th}% взята. Так держать.`}</div></div>
-    <div class="kv" style="grid-column:1/-1;margin-top:0"><div><b>${doneN}/${ts.length}</b><span>тактик</span></div><div><b>${this.avg()??'—'}%</b><span>средний</span></div><div><b>${before?'—':left}</b><span>дней</span></div></div></div>`;
-  if(before)h+=`<div class="card small mut">Спринт начинается ${fd(this.st)}. Можно уже отмечать — данные лягут в первую неделю.</div>`;
-  const wf=(S.weeks[w]||{}).focus,ytop=((S.checkin||{})[add(this.day,-1)]||{}).top;
+  const S=this.S,td=today();
+  if(S.goals.length&&today()>this.end()&&!this._skipFinal)return this.vFinal();
+  const inS=S.goals.length>0&&this.day>=this.st&&this.day<=this.end();
+  const w=inS?this.weekOf(this.day):0,sc=inS?this.score(w):null,th=+S.sprint.threshold||85;
+  const ts=inS?S.tactics.filter(t=>this.activeIn(t,w)):[];
+  const nm=(S.profile.name||'').split(' ')[0],dd=pd(this.day);
+  const dp=this.dayAll(this.day),hs0=S.habits.filter(x=>!x.archived),bestS=Math.max(0,...hs0.map(x=>{const[f,s_,fr]=this.hFns(x);return this.streak(f,s_,fr)}));
+  const tk=this.tasksFor(this.day),tkDone=tk.filter(x=>x.done).length;
+  let h=`<div class="lbl">${nm?'Привет, '+esc(nm)+' · ':''}${WDF[dd.getDay()]}, ${fd(this.day)}</div>
+  <div class="h1">${this.day===td?'Сегодня':this.day===add(td,-1)?'Вчера':this.day===add(td,1)?'Завтра':WDF[dd.getDay()][0].toUpperCase()+WDF[dd.getDay()].slice(1)}</div>
+  <div class="card hero" style="margin-top:16px">${this.ring(dp.n?Math.round(dp.p*100):null,100,'ДЕНЬ')}
+    <div><div class="lbl">План дня</div>
+      <div style="margin-top:6px;font-size:14px">${dp.n?(dp.left?`Осталось <b>${dp.left}</b> ${this.pl(dp.left,'дело','дела','дел')} из ${dp.n}`:'Всё на сегодня сделано.'):'На этот день ничего не запланировано.'}</div></div>
+    <div class="kv" style="grid-column:1/-1;margin-top:0">
+      <div><b>${dp.done}/${dp.n}</b><span>дел</span></div>
+      <div><b>${bestS}</b><span>серия дн.</span></div>
+      ${inS?`<div onclick="APP.wk=${w};APP.go('week')" style="cursor:pointer"><b>${sc??'—'}${sc!=null?'%':''}</b><span>неделя ${w}/${this.W}</span></div>`:`<div onclick="APP.go('goals')" style="cursor:pointer"><b>—</b><span>${S.goals.length?'вне спринта':'спринт'}</span></div>`}
+    </div></div>`;
+  if(!S.goals.length)h+=`<div class="card small mut">Привычки и задачи работают сами по себе. Когда будешь готова к целям на 12 недель — <button class="btn sm" style="margin-left:4px" onclick="APP.go('goals')">настроить спринт</button></div>`;
+  else if(td<this.st)h+=`<div class="card small mut">Спринт начинается ${fd(this.st)}. Отмечать можно уже сейчас.</div>`;
+  const wf=inS?(S.weeks[w]||{}).focus:'',ytop=((S.checkin||{})[add(this.day,-1)]||{}).top;
   if(ytop)h+=`<div class="quote" style="margin:14px 0"><span class="lbl" style="display:block;margin-bottom:2px">Главное на сегодня</span>${esc(ytop)}</div>`;
   if(wf)h+=`<div class="quote" style="margin:14px 0;border-color:var(--cd)"><span class="lbl" style="display:block;margin-bottom:2px">Фокус недели</span>${esc(wf)}</div>`;
-  const dd=pd(this.day),fz=this.frozen(this.day),grp=(S.pref||{}).group||'tod';
+  const fz=this.frozen(this.day),grp=(S.pref||{}).group||'tod';
   h+=`<div class="daynav"><button onclick="APP.shiftDay(-1)">${I.l}</button>
-    <button class="d" onclick="APP.dayMenu()"><b>${this.day===td?'Сегодня':WDF[dd.getDay()][0].toUpperCase()+WDF[dd.getDay()].slice(1)}</b><span class="lbl">${fd(this.day)} · неделя ${w}${fz?' · заморожен':''}</span></button>
+    <button class="d" onclick="APP.dayMenu()"><b>${this.day===td?'Сегодня':WDF[dd.getDay()][0].toUpperCase()+WDF[dd.getDay()].slice(1)}</b><span class="lbl">${inS?'неделя '+w+' спринта':'вне спринта'}${fz?' · заморожен':''}</span></button>
     <button onclick="APP.shiftDay(1)">${I.r}</button></div>
 `;
   if(fz)h+=`<div class="card frozen small"><b>День заморожен.</b> Отметки не обязательны, серии не прервутся, счёт недели пересчитан без этого дня. <button class="btn sm" style="margin-left:6px" onclick="APP.freeze('${this.day}',false)">Разморозить</button></div>`;
   const hs=S.habits.filter(x=>!x.archived&&(this.hSched(x,this.day)||this.hOn(x,this.day)));
+  h+=this.tasksBlock(tk);
   if(grp==='goal'){
     S.goals.forEach(g=>{const gt=ts.filter(t=>t.goal===g.id);if(!gt.length)return;
       h+=`<div class="gh3"><span class="dot" style="background:${g.color}"></span><span class="lbl" style="color:var(--tx)">${esc(g.title)}</span><span class="sp"></span><span class="pill">${this.score(w,g.id)??'—'}%</span></div>`;
@@ -443,7 +449,7 @@ dayMenu(){const d=this.day,fz=this.frozen(d);
    <button onclick="APP.close();APP.setGroup(((APP.S.pref||{}).group||'tod')==='tod'?'goal':'tod')">${I.goal}<span>${((this.S.pref||{}).group||'tod')==='tod'?'Группировать по целям':'Группировать по времени суток'}</span></button>
    <button onclick="APP.close();APP.day=today();APP.render()">${I.week}<span>К сегодняшнему дню</span></button></div>`)},
 freeze(d,on){const K=this.S.skip=this.S.skip||{};this.stamp('S|'+d+'|__all');K[d]=K[d]||{};if(on)K[d].__all=true;else delete K[d].__all;if(!Object.keys(K[d]).length)delete K[d];this.save();this.render();this.toast(on?'День заморожен':'День разморожен')},
-lpMenu(k,id){const d=this.day;const o=k==='t'?this.S.tactics.find(x=>x.id===id):this.S.habits.find(x=>x.id===id);if(!o)return;
+lpMenu(k,id){const d=this.day;if(k==='k')return this.taskEdit(id);const o=k==='t'?this.S.tactics.find(x=>x.id===id):this.S.habits.find(x=>x.id===id);if(!o)return;
   const sk=this.skipped(id,d)&&!this.frozen(d);
   this.open(`<div class="row"><div class="h2 sp" style="font-size:17px">${esc(o.title)}</div><button class="btn sm gh" onclick="APP.close()">Закрыть</button></div><div class="menu" style="margin-top:8px">
    <button onclick="APP.close();${k==='t'?`APP.editT('${id}')`:`APP.editH('${id}')`}">${I.ed}<span>Изменить</span></button>
@@ -453,10 +459,33 @@ lpMenu(k,id){const d=this.day;const o=k==='t'?this.S.tactics.find(x=>x.id===id):
    ${k==='h'?`<button class="warn" onclick="APP.close();APP.hArch('${id}',true)">${I.l}<span>В архив</span></button>`:`<button class="warn" onclick="APP.close();APP._t=JSON.parse(JSON.stringify(o));APP._t.active=!(o.active!==false);APP.tSave()">${I.l}<span>${o.active!==false?'Поставить на паузу':'Снять с паузы'}</span></button>`}
    </div>`)},
 quickAdd(){this.open(`<div class="row"><div class="h2 sp">Добавить</div><button class="btn sm gh" onclick="APP.close()">Закрыть</button></div><div class="menu" style="margin-top:8px">
+   <button onclick="APP.close();const t=prompt('Задача на ${'${fd(APP.day)}'}');if(t)APP.taskAdd(t,APP.day)">${I.week}<span>Задачу на этот день</span></button>
    <button onclick="APP.close();APP.editH(null)">${I.habit}<span>Привычку</span></button>
    <button onclick="APP.close();APP.editT(null)">${I.goal}<span>Тактику в цель</span></button>
    <button onclick="APP.close();APP.editDeal(null)">${I.me}<span>Контакт в воронку</span></button>
    <button onclick="APP.close();APP.ciOpen(APP.day)">${I.ed}<span>Заметку и чек-ин дня</span></button></div>`)},
+
+/* ---------- задачи дня (разовые дела) ---------- */
+tasksFor(d){const td=today();return (this.S.tasks||[]).filter(x=>x.date===d||(!x.done&&x.date<d&&d===td)).sort((a,b)=>(a.done?1:0)-(b.done?1:0)||(a.t||0)-(b.t||0))},
+tasksBlock(tk){const d=this.day;
+  let h=`<div class="todh"><span class="lbl">Задачи</span><span class="ln"></span></div>`;
+  tk.forEach(x=>{const over=x.date<d;h+=`<div class="tk ${x.done?'done':''} ${this._pop===x.id?'pop':''}" data-lp="k:${x.id}"><div class="t"><b>${esc(x.title)}</b>${over?`<div class="meta">с ${fd(x.date)}</div>`:''}</div><button class="chk ${x.done?'on':''}" onclick="APP.taskToggle('${x.id}')">${x.done?I.ok:''}</button></div>`});
+  h+=`<form class="row" style="margin:6px 0 2px" onsubmit="event.preventDefault();APP.taskAdd(this.q.value,'${d}');this.q.value=''"><input name="q" placeholder="Новая задача на этот день" autocomplete="off" style="flex:1"><button class="ic" type="submit" aria-label="Добавить">${I.plus}</button></form>`;
+  return h},
+taskAdd(title,d){title=(title||'').trim();if(!title)return;this.S.tasks=this.S.tasks||[];this.S.tasks.push({id:'k'+uid(),title,date:d||today(),done:'',t:Date.now()});this.save();this.render();this.buzz(8)},
+taskToggle(id){const x=this.S.tasks.find(t=>t.id===id);if(!x)return;x.done=x.done?'':today();x.t=Date.now();if(x.done){this.buzz(12);this._pop=id}this.save();this.render()},
+taskDel(id){this.S.del=[...(this.S.del||[]),id];this.S.tasks=this.S.tasks.filter(t=>t.id!==id);this.save();this.close();this.render()},
+taskEdit(id){const x=this.S.tasks.find(t=>t.id===id);if(!x)return;
+  this.open(`<div class="row"><div class="h2 sp">Задача</div><button class="btn sm gh" onclick="APP.close()">Закрыть</button></div>
+  <div class="f"><label class="lbl">Что сделать</label><input id="kT" value="${esc(x.title)}"></div>
+  <div class="f"><label class="lbl">Дата</label><input id="kD" type="date" value="${x.date}"></div>
+  <div class="row"><button class="btn pr sp" onclick="const x=APP.S.tasks.find(t=>t.id==='${id}');x.title=$('kT').value.trim()||x.title;x.date=$('kD').value||x.date;x.t=Date.now();APP.save();APP.close();APP.render()">Сохранить</button><button class="btn del" onclick="APP.taskDel('${id}')">Удалить</button></div>`)},
+/* выполнение дня по всем делам: тактики, привычки, задачи */
+dayAll(d){const w=this.S.goals.length&&d>=this.st&&d<=this.end()?this.weekOf(d):0;let n=0,done=0;
+  if(w)this.S.tactics.filter(t=>this.activeIn(t,w)&&t.type!=='ms'&&!this.skipped(t.id,d)).forEach(t=>{n++;const v=this.v(t,d);if(t.type==='check'?v>0:t.type==='num'?v>=(+t.per||1):v>0)done++});
+  this.S.habits.filter(x=>!x.archived&&this.hSched(x,d)).forEach(x=>{n++;if(this.hOn(x,d))done++});
+  this.tasksFor(d).forEach(x=>{n++;if(x.done)done++});
+  return {n,done,left:n-done,p:n?done/n:0}},
 
 /* ---------- вечерний чек-ин ---------- */
 ciOpen(d){const c=((this.S.checkin||{})[d])||{};this._ci=Object.assign({energy:0,sleep:'',win:'',top:'',note:''},c);this._cid=d;this.ciForm()},
@@ -922,6 +951,7 @@ merge(a,b){
   m.log=this.mergeLog(a.log,b.log,a.lt,b.lt,'');m.hlog=this.mergeLog(a.hlog,b.hlog,a.lt,b.lt,'H|');m.skip=this.mergeLog(a.skip,b.skip,a.lt,b.lt,'S|');
   m.checkin=Object.assign({},a.checkin||{});for(const d in b.checkin||{})if(!m.checkin[d]||(b.checkin[d].t||0)>(m.checkin[d].t||0))m.checkin[d]=b.checkin[d];
   m.pref=Object.assign({},old.pref||{},nw.pref||{});
+  const km=new Map();[...(a.tasks||[]),...(b.tasks||[])].forEach(x=>{if(m.del.includes(x.id))return;const p=km.get(x.id);if(!p||(x.t||0)>(p.t||0))km.set(x.id,x)});m.tasks=[...km.values()];
   m.weeks=Object.assign({},old.weeks||{});for(const w in nw.weeks||{})m.weeks[w]=Object.assign({},(old.weeks||{})[w]||{},nw.weeks[w]);
   m.del=[...new Set([...(a.del||[]),...(b.del||[])])];
   const dm=new Map();[...(a.deals||[]),...(b.deals||[])].forEach(d=>{if(m.del.includes(d.id))return;const p=dm.get(d.id);if(!p||(d.upd||0)>(p.upd||0))dm.set(d.id,d)});
