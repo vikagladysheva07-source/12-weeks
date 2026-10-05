@@ -411,8 +411,8 @@ vHome(){
   if(!S.goals.length)h+=`<div class="card small mut">Привычки и задачи работают сами по себе. Когда будешь готова к целям на 12 недель — <button class="btn sm" style="margin-left:4px" onclick="APP.go('goals')">настроить спринт</button></div>`;
   else if(td<this.st)h+=`<div class="card small mut">Спринт начинается ${fd(this.st)}. Отмечать можно уже сейчас.</div>`;
   const wf=inS?(S.weeks[w]||{}).focus:'',ytop=((S.checkin||{})[add(this.day,-1)]||{}).top;
-  if(ytop)h+=`<div class="quote" style="margin:14px 0"><span class="lbl" style="display:block;margin-bottom:2px">Главное на сегодня</span>${esc(ytop)}</div>`;
-  if(wf)h+=`<div class="quote" style="margin:14px 0;border-color:var(--cd)"><span class="lbl" style="display:block;margin-bottom:2px">Фокус недели</span>${esc(wf)}</div>`;
+  h+=`<button class="quote" style="margin:14px 0;display:block;width:100%;text-align:left;${ytop?'':'opacity:.55'}" onclick="APP.editTop('${add(this.day,-1)}')"><span class="lbl" style="display:block;margin-bottom:2px">Главное на ${this.day===td?'сегодня':'этот день'}</span>${ytop?esc(ytop):'Задать одно дело, которое важнее остальных'}</button>`;
+  if(inS)h+=`<button class="quote" style="margin:14px 0;display:block;width:100%;text-align:left;border-color:var(--cd);${wf?'':'opacity:.55'}" onclick="APP.editFocus(${w})"><span class="lbl" style="display:block;margin-bottom:2px">Фокус недели ${w}</span>${wf?esc(wf):'Одна фраза: что главное на этой неделе'}</button>`;
   const fz=this.frozen(this.day),grp=(S.pref||{}).group||'tod';
   h+=`<div class="daynav"><button onclick="APP.shiftDay(-1)">${I.l}</button>
     <button class="d" onclick="APP.dayMenu()"><b>${this.day===td?'Сегодня':WDF[dd.getDay()][0].toUpperCase()+WDF[dd.getDay()].slice(1)}</b><span class="lbl">${inS?'неделя '+w+' спринта':'вне спринта'}${fz?' · заморожен':''}</span></button>
@@ -440,7 +440,7 @@ vHome(){
 },
 setGroup(g){this.S.pref=this.S.pref||{};this.S.pref.group=g;this.save();this.render()},
 hRow(x){const d=this.day,on=this.hOn(x,d),[f,s,fr]=this.hFns(x),st=this.streak(f,s,fr),sk=this.skipped(x.id,d)&&!this.frozen(d),g=((this.S.pref||{}).group||'tod')==='tod';
-  return `<div class="tk ${on?'done':''} ${sk?'skip':''} ${this._pop===x.id?'pop':''}" data-lp="h:${x.id}"><div class="t"><b>${g?'<span class="dot" style="display:inline-block;background:var(--cb);margin-right:8px;vertical-align:middle"></span>':''}${esc(x.title)}</b><div class="meta">${sk?'пропуск на этот день':st?'серия '+st+' дн.':'начни серию сегодня'}${x.when?' · '+esc(x.when):''}</div></div>
+  return `<div class="tk ${on?'done':''} ${sk?'skip':''} ${this._pop===x.id?'pop':''}" data-lp="h:${x.id}"><div class="t" onclick="APP.editH('${x.id}')"><b>${g?'<span class="dot" style="display:inline-block;background:var(--cb);margin-right:8px;vertical-align:middle"></span>':''}${esc(x.title)}</b><div class="meta">${sk?'пропуск на этот день':st?'серия '+st+' дн.':'начни серию сегодня'}${x.when?' · '+esc(x.when):''}</div></div>
     <button class="chk ${on?'on':''}" onclick="APP.hToggle('${x.id}','${d}')">${on?I.ok:''}</button></div>`},
 dayMenu(){const d=this.day,fz=this.frozen(d);
   this.open(`<div class="row"><div class="h2 sp">${fd(d)}</div><button class="btn sm gh" onclick="APP.close()">Закрыть</button></div><div class="menu" style="margin-top:8px">
@@ -465,11 +465,23 @@ quickAdd(){this.open(`<div class="row"><div class="h2 sp">Добавить</div>
    <button onclick="APP.close();APP.editDeal(null)">${I.me}<span>Контакт в воронку</span></button>
    <button onclick="APP.close();APP.ciOpen(APP.day)">${I.ed}<span>Заметку и чек-ин дня</span></button></div>`)},
 
+/* ---------- быстрая правка строк на главной ---------- */
+editTop(prev){const c=((this.S.checkin||{})[prev])||{};
+  this.open(`<div class="row"><div class="h2 sp" style="font-size:17px">Главное на день</div><button class="btn sm gh" onclick="APP.close()">Закрыть</button></div>
+  <div class="f"><input id="qT" value="${esc(c.top)}" placeholder="Одно дело, которое важнее остальных"></div>
+  <div class="small mut">Это поле «главное на завтра» из вечернего чек-ина за ${fd(prev)}.</div>
+  <button class="btn pr w" style="margin-top:14px" onclick="const v=$('qT').value.trim();APP.S.checkin=APP.S.checkin||{};APP.S.checkin['${prev}']=Object.assign({energy:0,sleep:'',win:'',note:''},APP.S.checkin['${prev}']||{},{top:v,t:Date.now()});APP.save();APP.close();APP.render()">Сохранить</button>`);setTimeout(()=>$('qT')&&$('qT').focus(),50)},
+editFocus(w){const ws=this.S.weeks[w]||{};
+  this.open(`<div class="row"><div class="h2 sp" style="font-size:17px">Фокус недели ${w}</div><button class="btn sm gh" onclick="APP.close()">Закрыть</button></div>
+  <div class="f"><input id="qF" value="${esc(ws.focus)}" placeholder="Одна фраза: что главное на этой неделе"></div>
+  <div class="f"><label class="lbl">План недели</label><textarea id="qP" placeholder="Конкретика: кому касания, какие ролики, какие темы…">${esc(ws.plan)}</textarea></div>
+  <button class="btn pr w" onclick="APP.setW(${w},'focus',$('qF').value.trim());APP.setW(${w},'plan',$('qP').value);APP.close();APP.render()">Сохранить</button>`);setTimeout(()=>$('qF')&&$('qF').focus(),50)},
+
 /* ---------- задачи дня (разовые дела) ---------- */
-tasksFor(d){const td=today();return (this.S.tasks||[]).filter(x=>x.date===d||(!x.done&&x.date<d&&d===td)).sort((a,b)=>(a.done?1:0)-(b.done?1:0)||(a.t||0)-(b.t||0))},
+tasksFor(d){const td=today();return (this.S.tasks||[]).filter(x=>x.date===d||(!x.done&&x.date<d&&d===td)).sort((a,b)=>(a.done?1:0)-(b.done?1:0)||(b.pri?1:0)-(a.pri?1:0)||(a.t||0)-(b.t||0))},
 tasksBlock(tk){const d=this.day;
   let h=`<div class="todh"><span class="lbl">Задачи</span><span class="ln"></span></div>`;
-  tk.forEach(x=>{const over=x.date<d;h+=`<div class="tk ${x.done?'done':''} ${this._pop===x.id?'pop':''}" data-lp="k:${x.id}"><div class="t"><b>${esc(x.title)}</b>${over?`<div class="meta">с ${fd(x.date)}</div>`:''}</div><button class="chk ${x.done?'on':''}" onclick="APP.taskToggle('${x.id}')">${x.done?I.ok:''}</button></div>`});
+  tk.forEach(x=>{const over=x.date<d;h+=`<div class="tk ${x.done?'done':''} ${this._pop===x.id?'pop':''}" data-lp="k:${x.id}"><div class="t" onclick="APP.taskEdit('${x.id}')"><b>${x.pri?'<span style="color:var(--pb);margin-right:6px">★</span>':''}${esc(x.title)}</b>${over?`<div class="meta">с ${fd(x.date)}</div>`:''}</div><button class="chk ${x.done?'on':''}" onclick="APP.taskToggle('${x.id}')">${x.done?I.ok:''}</button></div>`});
   h+=`<form class="row" style="margin:6px 0 2px" onsubmit="event.preventDefault();APP.taskAdd(this.q.value,'${d}');this.q.value=''"><input name="q" placeholder="Новая задача на этот день" autocomplete="off" style="flex:1"><button class="ic" type="submit" aria-label="Добавить">${I.plus}</button></form>`;
   return h},
 taskAdd(title,d){title=(title||'').trim();if(!title)return;this.S.tasks=this.S.tasks||[];this.S.tasks.push({id:'k'+uid(),title,date:d||today(),done:'',t:Date.now()});this.save();this.render();this.buzz(8)},
@@ -479,7 +491,8 @@ taskEdit(id){const x=this.S.tasks.find(t=>t.id===id);if(!x)return;
   this.open(`<div class="row"><div class="h2 sp">Задача</div><button class="btn sm gh" onclick="APP.close()">Закрыть</button></div>
   <div class="f"><label class="lbl">Что сделать</label><input id="kT" value="${esc(x.title)}"></div>
   <div class="f"><label class="lbl">Дата</label><input id="kD" type="date" value="${x.date}"></div>
-  <div class="row"><button class="btn pr sp" onclick="const x=APP.S.tasks.find(t=>t.id==='${id}');x.title=$('kT').value.trim()||x.title;x.date=$('kD').value||x.date;x.t=Date.now();APP.save();APP.close();APP.render()">Сохранить</button><button class="btn del" onclick="APP.taskDel('${id}')">Удалить</button></div>`)},
+  <div class="f"><label class="row" style="cursor:pointer"><input type="checkbox" id="kP" style="width:auto" ${x.pri?'checked':''}> Приоритет: показывать первой</label></div>
+  <div class="row"><button class="btn pr sp" onclick="const x=APP.S.tasks.find(t=>t.id==='${id}');x.title=$('kT').value.trim()||x.title;x.date=$('kD').value||x.date;x.pri=$('kP').checked;x.t=Date.now();APP.save();APP.close();APP.render()">Сохранить</button><button class="btn del" onclick="APP.taskDel('${id}')">Удалить</button></div>`)},
 /* выполнение дня по всем делам: тактики, привычки, задачи */
 dayAll(d){const w=this.S.goals.length&&d>=this.st&&d<=this.end()?this.weekOf(d):0;let n=0,done=0;
   if(w)this.S.tactics.filter(t=>this.activeIn(t,w)&&t.type!=='ms'&&!this.skipped(t.id,d)).forEach(t=>{n++;const v=this.v(t,d);if(t.type==='check'?v>0:t.type==='num'?v>=(+t.per||1):v>0)done++});
@@ -570,9 +583,9 @@ tRow(t,w,showGoal){
   if(sk)meta='пропуск на этот день · '+meta;
   let hint='';
   if(t.type==='check'&&!val&&!sk&&d>this.st&&!this.v(t,add(d,-1))&&!this.skipped(t.id,add(d,-1)))hint=`Вчера пропущено. Не пропускай дважды${t.min?': минимум — '+esc(t.min):''}`;
-  let tb='';if(t.type==='check'&&t.mins&&!val){const run=this.tm&&this.tm.tid===t.id;tb=`<button class="tbtn ${run?'run':''}" onclick="${run?'APP.tmOpen()':`APP.tmStart('${t.id}','${d}')`}">${run?'● идёт':'▶ '+t.mins+' мин'}</button>`}
+  let tb='';if(t.type==='check'&&t.mins&&!val){const run=this.tm&&this.tm.tid===t.id;tb=`<button class="tbtn ${run?'run':''}" onclick="event.stopPropagation();${run?'APP.tmOpen()':`APP.tmStart('${t.id}','${d}')`}">${run?'● идёт':'▶ '+t.mins+' мин'}</button>`}
   const dot=showGoal?`<span class="dot" style="display:inline-block;background:${this.gColor(t.goal)};margin-right:8px;vertical-align:middle"></span>`:'';
-  return `<div class="tk ${done?'done':''} ${sk?'skip':''} ${this._pop===t.id?'pop':''}" data-lp="t:${t.id}"><div class="t"><b>${dot}${esc(t.title)}</b><div class="meta">${meta}</div>
+  return `<div class="tk ${done?'done':''} ${sk?'skip':''} ${this._pop===t.id?'pop':''}" data-lp="t:${t.id}"><div class="t" onclick="APP.editT('${t.id}')"><b>${dot}${esc(t.title)}</b><div class="meta">${meta}</div>
     <div class="bar ${done?'c':''}"><i style="width:${Math.min(wv/wt,1)*100}%"></i></div>${hint?`<div class="hint">${hint}</div>`:''}${tb}</div>${ctl}</div>`;
 },
 vOnboard(){return `<div class="lbl">Система 12 недель</div><div class="h1">Год длиной<br>в 12 недель</div>
