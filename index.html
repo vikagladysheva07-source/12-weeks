@@ -225,11 +225,49 @@ details>summary::before{content:"▸ ";color:var(--pb)}details[open]>summary::be
 .dr b{font-family:var(--mono);font-size:10px;font-weight:500;color:var(--mut)}
 .dr span{font-family:var(--mono);font-size:9.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em}
 .dr.td{background:rgba(155,111,232,.12)}.dr.td span{color:var(--tx)}
+.dash{display:flex;flex-direction:column}
+.dtop{order:1}.dmain{order:2}.dbot{order:3}
+.snav{display:none}
+@media(min-width:1024px){
+  .wrap{max-width:none;margin:0;padding:28px 36px 48px 300px}
+  .nav{display:none}
+  .top{display:none}
+  .dhead .h1{font-size:40px}
+  .dash{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:0 22px;align-items:start;margin-top:4px}
+  .dtop{grid-column:2;grid-row:1}
+  .dmain{grid-column:1;grid-row:1/span 2}
+  .dbot{grid-column:2;grid-row:2}
+  .dtop .card:first-child,.dmain>.card:first-child{margin-top:12px}
+  .hero{grid-template-columns:auto 1fr}
+  .snav{display:flex;flex-direction:column;position:fixed;left:24px;top:24px;bottom:24px;width:236px;z-index:40;padding:18px 14px;border-radius:26px;
+    background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.02) 50%),rgba(14,12,24,.72);border:1px solid var(--line);backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 18px 44px rgba(0,0,0,.55)}
+  .sn-brand{display:flex;align-items:center;gap:10px;padding:6px 8px 18px}
+  .sn-brand b{display:block;font-weight:900;text-transform:uppercase;letter-spacing:-.3px;font-size:15px;line-height:1.1}
+  .sn-brand span{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut)}
+  .sn-mark{width:30px;height:30px;border-radius:9px;flex:none;background:linear-gradient(160deg,#D9C6FF,#9B6FE8 55%,#5B2FBE);box-shadow:var(--glow),inset 0 1px 0 rgba(255,255,255,.5)}
+  .sn-items{display:flex;flex-direction:column;gap:4px;flex:1}
+  .sn-items button{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:14px;color:var(--mut);font-weight:600;font-size:14px;text-align:left;transition:.2s}
+  .sn-items button svg{width:20px;height:20px;flex:none}
+  .sn-items button:hover{background:rgba(255,255,255,.04);color:var(--tx)}
+  .sn-items button.on{color:#fff;background:linear-gradient(180deg,rgba(155,111,232,.42),rgba(91,47,190,.36));box-shadow:var(--glow),inset 0 1px 0 rgba(255,255,255,.3)}
+  .sn-items button.on svg{filter:drop-shadow(0 0 6px rgba(196,164,255,.9))}
+  .sn-foot{display:flex;align-items:center;gap:10px;padding:12px 8px 4px;border-top:1px solid var(--line);cursor:pointer}
+  .sn-foot .ava{width:34px;height:34px;font-size:13px}
+  .sn-foot b{display:block;font-size:13.5px;line-height:1.15}
+  .sn-foot .cloud{font-size:9px}
+  .modal{align-items:center}.sheet{border-radius:22px;max-width:640px}
+  .toast{bottom:32px}
+  .fab{display:none}
+}
+@media(min-width:1200px){.dash{grid-template-columns:minmax(0,1fr) 380px}}
+@media(min-width:1400px){.wrap{padding-left:320px;max-width:1500px}.dash{grid-template-columns:minmax(0,1fr) 420px}}
 </style>
 </head>
 <body>
 <div class="wrap" id="app"></div>
 <nav class="nav" id="nav"></nav>
+<nav class="snav" id="snav"></nav>
 <div class="modal" id="modal" onclick="if(event.target===this)APP.close()"><div class="sheet" id="sheet"></div></div>
 <div class="toast" id="toast"></div>
 <script>
@@ -454,6 +492,8 @@ go(tab,sub){this.tab=tab;this.sub=sub||null;try{sessionStorage.setItem('tw-tab',
 openSub(sub){this.sub=sub;window.scrollTo(0,0);this.render()},
 shiftDay(n){const d=add(this.day,n);if(d>add(today(),30))return;this.day=d;this.render()},
 goDay(d){this.day=d;this.go('home')},
+dash(html){const p=html.split('__S1__');if(p.length<2)return html;const head=p[0],rest=p[1].split('__S2__');const top=rest.length>1?rest[0]:'';const r2=(rest.length>1?rest[1]:rest[0]).split('__S3__');
+  return `<div class="dhead">${head}</div><div class="dash"><div class="dtop">${top}</div><div class="dmain">${r2[0]}</div><div class="dbot">${r2[1]||''}</div></div>`},
 simple(){return !!((this.S.pref||{}).simple)},
 setSimple(v){this.S.pref=this.S.pref||{};this.S.pref.simple=!!v;this.save();if(v&&(this.tab==='habits'||this.tab==='goals'))this.tab='home';this.render()},
 render(){
@@ -463,11 +503,16 @@ render(){
   if(this.sub==='programs')body=this.vPrograms();
   else if(this.sub==='deals')body=this.vDeals();
   else body={home:this.vHome,habits:this.vHabits,goals:this.vGoals,week:this.vWeek,me:this.vMe}[this.tab].call(this);
-  $('app').innerHTML=this.top()+body;
+  $('app').innerHTML=this.top()+this.dash(body);
   const simple=this.simple();
   const tabs=simple?[['home','Главное',I.home],['week','Неделя',I.week],['me','Я',I.me]]:[['home','Главное',I.home],['habits','Привычки',I.habit],['goals','Программа',I.goal],['week','Неделя',I.week],['me','Я',I.me]];
   this._pop=null;
   $('nav').innerHTML='<div class="in">'+tabs.map(([k,l,ic])=>`<button class="${this.tab===k?'on':''}" onclick="APP.go('${k}')">${ic}<span>${l}</span></button>`).join('')+'</div>';
+  const P=this.prog();
+  $('snav').innerHTML=`<div class="sn-brand"><span class="sn-mark"></span><div><b>${esc(this.S.sprint.title||'12 недель')}</b><span>${P?esc(P.origin.split(',')[0]):'система достижения целей'}</span></div></div>
+   <div class="sn-items">${tabs.map(([k,l,ic])=>`<button class="${this.tab===k&&!this.sub?'on':''}" onclick="APP.go('${k}')">${ic}<span>${l}</span></button>`).join('')}
+   <button class="${this.sub==='programs'?'on':''}" onclick="APP.openSub('programs')">${I.goal}<span>Каталог программ</span></button></div>
+   <div class="sn-foot" onclick="APP.go('me')"><span class="ava">${esc(this.initial())}</span><div class="sp"><b>${esc(this.S.profile.name||'Гость')}</b><span class="cloud ${this.cloud==='on'?'on':this.cloud==='err'?'err':''}"><i></i>${this.user?(this.cloud==='on'?'в облаке':this.cloud==='err'?'нет связи':'синхронизация'):'без аккаунта'}</span></div></div>`;
 },
 initial(){const n=(this.S.profile.name||(this.user&&this.user.email)||'').trim();return n?n[0].toUpperCase():'·'},
 top(){return `<div class="top"><span></span>
@@ -492,7 +537,7 @@ vHome(){
   const dp=this.dayAll(this.day),hs0=S.habits.filter(x=>!x.archived),bestS=Math.max(0,...hs0.map(x=>{const[f,s_,fr]=this.hFns(x);return this.streak(f,s_,fr)}));
   const tk=this.tasksFor(this.day),tkDone=tk.filter(x=>x.done).length;
   let h=`<div class="lbl">${nm?'Привет, '+esc(nm)+' · ':''}${WDF[dd.getDay()]}, ${fd(this.day)}</div>
-  <div class="h1">${this.day===td?'Сегодня':this.day===add(td,-1)?'Вчера':this.day===add(td,1)?'Завтра':WDF[dd.getDay()][0].toUpperCase()+WDF[dd.getDay()].slice(1)}</div>
+  <div class="h1">${this.day===td?'Сегодня':this.day===add(td,-1)?'Вчера':this.day===add(td,1)?'Завтра':WDF[dd.getDay()][0].toUpperCase()+WDF[dd.getDay()].slice(1)}</div>__S1__
   <div class="card hero" style="margin-top:16px">${this.ring(dp.n?Math.round(dp.p*100):null,100,'ДЕНЬ')}
     <div><div class="lbl">План дня</div>
       <div style="margin-top:6px;font-size:14px">${dp.n?(dp.left?`Осталось <b>${dp.left}</b> ${this.pl(dp.left,'дело','дела','дел')} из ${dp.n}`:'Всё на сегодня сделано.'):'На этот день ничего не запланировано.'}</div></div>
@@ -509,7 +554,7 @@ vHome(){
   h+=`<button class="quote" style="margin:14px 0;display:block;width:100%;text-align:left;${ytop?'':'opacity:.55'}" onclick="APP.editTop('${add(this.day,-1)}')"><span class="lbl" style="display:block;margin-bottom:2px">Главное на ${this.day===td?'сегодня':'этот день'}</span>${ytop?esc(ytop):'Задать одно дело, которое важнее остальных'}</button>`;
   if(inS)h+=`<button class="quote" style="margin:14px 0;display:block;width:100%;text-align:left;border-color:var(--cd);${wf?'':'opacity:.55'}" onclick="APP.editFocus(${w})"><span class="lbl" style="display:block;margin-bottom:2px">Фокус недели ${w}</span>${wf?esc(wf):'Одна фраза: что главное на этой неделе'}</button>`;
   const fz=this.frozen(this.day),grp=(S.pref||{}).group||'tod';
-  h+=`<div class="daynav"><button onclick="APP.shiftDay(-1)">${I.l}</button>
+  h+=`__S2__<div class="daynav"><button onclick="APP.shiftDay(-1)">${I.l}</button>
     <button class="d" onclick="APP.dayMenu()"><b>${this.day===td?'Сегодня':WDF[dd.getDay()][0].toUpperCase()+WDF[dd.getDay()].slice(1)}</b><span class="lbl">${inS?'неделя '+w+' спринта':'вне спринта'}${fz?' · заморожен':''}</span></button>
     <button onclick="APP.shiftDay(1)">${I.r}</button></div>
 `;
@@ -527,7 +572,7 @@ vHome(){
       h+=`<div class="todh"><span class="lbl">${this.TOD[k]}</span><span class="ln"></span></div>`;
       it.forEach(i=>h+=i.k==='t'?this.tRow(i.o,w,true):this.hRow(i.o))});
   }
-  const ci=(S.checkin||{})[this.day];
+  const ci=(S.checkin||{})[this.day];h+='__S3__';
   if(this.day<=td)h+=`<div class="card" style="margin-top:22px"><div class="row"><div class="sp"><div class="lbl">Вечерний чек-ин</div><div class="small mut" style="margin-top:4px">${ci?`Энергия ${ci.energy||'—'}/5 · сон ${ci.sleep||'—'} ч${ci.win?' · '+esc(ci.win):''}`:'60 секунд: энергия, сон, победа дня, главное на завтра'}</div></div>
     <button class="btn ${ci?'':'pr'} sm" onclick="APP.ciOpen('${this.day}')">${ci?'Изменить':'Закрыть день'}</button></div></div>`;
   return h;
@@ -796,7 +841,7 @@ vHabits(){
   const streaks=allRows.map(r=>{const[f,sc,fr]=r.k==='h'?this.hFns(r.o):this.tFns(r.o);return {r,st:this.streak(f,sc,fr),best:this.best(f,sc,fr),rate:this.rate(f,sc,fr,30)}});
   const bestS=Math.max(0,...streaks.map(x=>x.st)),weak=streaks.filter(x=>x.rate!=null).sort((a,b)=>a.rate-b.rate)[0];
   const avg30=(()=>{const v=trend.map(t=>t.p).filter(x=>x!=null);return v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length*100):null})();
-  let h=`<div class="lbl">${fd(td)} · ${WDF[pd(td).getDay()]}</div><div class="h1">Привычки</div>`;
+  let h=`<div class="lbl">${fd(td)} · ${WDF[pd(td).getDay()]}</div><div class="h1">Привычки</div>__S1__`;
   if(allRows.length){
     const W=100,H=38,pts=trend.map((t,i)=>[i/29*W,t.p==null?null:H-t.p*H*0.9-2]).filter(p=>p[1]!=null);
     const path=pts.length>1?'M'+pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join('L'):'';
@@ -809,11 +854,12 @@ vHabits(){
     <div class="stat" style="grid-template-columns:repeat(2,1fr)"><div><b>${thisW??'—'}${thisW!=null?'%':''}</b><span>эта неделя</span></div><div><b style="color:${delta==null?'inherit':delta>=0?'var(--cb)':'var(--pb)'}">${delta==null?'—':(delta>0?'+':'')+delta+'%'}</b><span>к прошлой неделе</span></div>
      <div><b>${bestS}</b><span>лучшая серия</span></div><div><b style="font-size:15px;line-height:1.2;display:block;margin-top:3px">${weak?esc(weak.r.o.title):'—'}</b><span>требует внимания</span></div></div>`;
   }
-  h+=`<div class="gh3"><span class="lbl" style="color:var(--tx)">Мои привычки</span><span class="sp"></span><button class="btn sm" onclick="APP.editH(null)">${I.plus} Привычка</button></div>`;
+  h+=`__S2__<div class="gh3"><span class="lbl" style="color:var(--tx)">Мои привычки</span><span class="sp"></span><button class="btn sm" onclick="APP.editH(null)">${I.plus} Привычка</button></div>`;
   if(!hs.length)h+=`<div class="card empty">Привычки живут вне спринта и не входят в счёт недели. Вода, растяжка, дневник — всё, что хочешь делать каждый день.</div>`;
   h+=`<div class="rl" data-rl="habits">`;hs.forEach(x=>h+=this.hCard(x,days,'h'));h+=`</div>`;
   const tt=S.tactics.filter(t=>this.tDaily(t));
   h+=this.monthGrid(hs,tt);
+  h+='__S3__';
   if(streaks.length>1){const byRate=[...streaks].filter(x=>x.rate!=null).sort((a,b)=>b.rate-a.rate).slice(0,6),bySt=[...streaks].sort((a,b)=>b.st-a.st).slice(0,6);
     const bar=(label,val,max,txt,col)=>`<div style="margin:9px 0"><div class="row small"><span class="sp" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${label}</span><b style="font-family:var(--mono);font-size:12px;color:${col}">${txt}</b></div><div class="bar ${col==='var(--cb)'?'c':''}"><i style="width:${max?Math.round(val/max*100):0}%"></i></div></div>`;
     h+=`<div class="card"><div class="lbl">Рейтинг привычек · 30 дней</div>${byRate.map(x=>bar(esc(x.r.o.title),x.rate,100,x.rate+'%','var(--cb)')).join('')}</div>
@@ -879,7 +925,7 @@ vGoals(){
   if(!S.goals.length)return this.vOnboard();
   const P=this.prog(),modeTxt={score:'планка 85%',strict:'строгий режим',count:'копилка дней'}[this.mode];
   let h=`<div class="lbl">${fd(this.st)} — ${fd(this.end())} · ${modeTxt}</div><div class="h1">${P?esc(P.name):'Программа'}</div>
-  <div class="row small mut" style="margin:8px 2px 4px"><span class="sp">День ${Math.max(1,Math.min(this.dayIndex(today()),this.sprintDays()))} из ${this.sprintDays()}${P?' · '+esc(P.origin):''}</span><button class="pill" onclick="APP.openSub('programs')">сменить</button></div>`;
+  <div class="row small mut" style="margin:8px 2px 4px"><span class="sp">День ${Math.max(1,Math.min(this.dayIndex(today()),this.sprintDays()))} из ${this.sprintDays()}${P?' · '+esc(P.origin):''}</span><button class="pill" onclick="APP.openSub('programs')">сменить</button></div>__S1____S2__`;
   S.goals.forEach((g,gi)=>{
     const ms=g.metrics||[],tot=S.tactics.filter(t=>t.goal===g.id&&t.total&&!ms.some(m=>m.auto==='t:'+t.id)),ts=S.tactics.filter(t=>t.goal===g.id);
     h+=`<div class="card"><div class="row"><span class="dot" style="background:${g.color}"></span><span class="h2 sp" style="font-size:17px">${esc(g.title)}</span>
@@ -899,6 +945,7 @@ vGoals(){
     if(ms.some(m=>m.auto==='paid'))h+=`<button class="btn w" style="margin-top:14px" onclick="APP.openSub('deals')">Воронка продаж ${I.r}</button>`;
     h+=`</div>`;
   });
+  h+='__S3__';
   const bw=100/W;let bars='';
   for(let i=1;i<=W;i++){const s=this.score(i);const hh=s==null||i>cw?0:s;const x=(i-1)*bw;
     bars+=`<g onclick="APP.wk=${i};APP.go('week')" style="cursor:pointer"><rect x="${x+bw*.15}" y="0" width="${bw*.7}" height="60" fill="transparent"/>
@@ -1016,12 +1063,12 @@ vWeek(){
   const ts=S.tactics.filter(t=>this.activeIn(t,w)),miss=ts.filter(t=>!this.wDone(t,w));
   let h=`<div class="row"><button class="ic" onclick="APP.wk=${Math.max(w-1,1)};APP.render()">${I.l}</button>
    <div class="sp" style="text-align:center"><div class="lbl">${fd(ds[0])} — ${fd(ds[6])}</div><div class="h2" style="margin-top:4px">Неделя ${w}${w===this.curWeek()?' · сейчас':''}</div></div>
-   <button class="ic" onclick="APP.wk=${Math.min(w+1,this.W)};APP.render()">${I.r}</button></div>
+   <button class="ic" onclick="APP.wk=${Math.min(w+1,this.W)};APP.render()">${I.r}</button></div>__S1__
   <div class="card hero">${this.ring(this.score(w),th)}<div>${S.goals.map(g=>`<div class="row small" style="margin:5px 0"><span class="dot" style="background:${g.color}"></span><span class="sp">${esc(g.title)}</span><b>${this.score(w,g.id)??'—'}%</b></div>`).join('')}</div>
   ${this.mode==='strict'?`<div class="kv" style="grid-column:1/-1;margin-top:0"><div><b>${this.strictRun()}</b><span>дней подряд</span></div><div><b>${this.strictResets()}</b><span>сбросов</span></div><div><b>${Math.max(0,this.sprintDays()-Math.max(0,diff(this.st,today())+1))}</b><span>осталось</span></div></div>`:this.mode==='count'?`<div class="kv" style="grid-column:1/-1;margin-top:0"><div><b>${this.countDays()}</b><span>дней в копилке</span></div><div><b>${this.sprintDays()}</b><span>всего</span></div><div><b>${Math.max(0,this.sprintDays()-Math.max(0,diff(this.st,today())+1))}</b><span>осталось</span></div></div>`:''}</div>
   <div class="card" style="padding:14px 10px"><div class="lbl" style="padding-left:4px">Дни недели</div><div class="drow">${ds.map(d=>{const a=this.dayAll(d),fut=d>td,p=fut||!a.n?0:a.p,fz=this.frozen(d);const C=2*Math.PI*15;
     return `<button class="dr ${d===td?'td':''}" onclick="APP.goDay('${d}')"><svg width="38" height="38" viewBox="0 0 38 38"><circle cx="19" cy="19" r="15" stroke="rgba(0,0,0,.45)" stroke-width="4" fill="none"/>${fz?`<circle cx="19" cy="19" r="15" stroke="rgba(94,224,238,.5)" stroke-width="2" stroke-dasharray="3 3" fill="none"/>`:`<circle cx="19" cy="19" r="15" stroke="${p>=.85?'#5EE0EE':'#9B6FE8'}" stroke-width="4" fill="none" stroke-linecap="round" stroke-dasharray="${(C*p).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 19 19)" style="${p?'filter:drop-shadow(0 0 5px '+(p>=.85?'rgba(0,196,212,.8)':'rgba(155,111,232,.8)')+')':''}"/>`}</svg><b>${fut||!a.n?'·':Math.round(p*100)+'%'}</b><span>${WD[pd(d).getDay()]}</span></button>`}).join('')}</div></div>
-  <div class="card"><div class="lbl">Фокус недели</div><input style="margin-top:8px" value="${esc(ws.focus)}" placeholder="Одна фраза: что главное на этой неделе" onchange="APP.setW(${w},'focus',this.value)">
+  __S2__<div class="card"><div class="lbl">Фокус недели</div><input style="margin-top:8px" value="${esc(ws.focus)}" placeholder="Одна фраза: что главное на этой неделе" onchange="APP.setW(${w},'focus',this.value)">
    <div class="lbl" style="margin-top:14px">План недели</div><textarea style="margin-top:8px" placeholder="Конкретика: кому касания, какие ролики, какие темы…" onchange="APP.setW(${w},'plan',this.value)">${esc(ws.plan)}</textarea></div>
   <div class="card" style="overflow-x:auto;padding:14px 12px"><table class="grid"><tr><th>Тактика</th>${ds.map(d=>`<th>${WD[pd(d).getDay()]}</th>`).join('')}<th>Итог</th></tr>`;
   S.goals.forEach(g=>{
@@ -1045,7 +1092,7 @@ vWeek(){
    <div class="f"><label class="lbl">Обещаю на неделю ${Math.min(w+1,this.W)}</label><textarea onchange="APP.setW(${w},'commit',this.value)">${esc(ws.commit)}</textarea></div>
    ${w<this.W?`<div class="f"><label class="lbl">Фокус недели ${w+1}</label><input value="${esc((S.weeks[w+1]||{}).focus)}" onchange="APP.setW(${w+1},'focus',this.value)" placeholder="Одна фраза на главную"></div>`:''}
   </div>
-  ${this.simple()?'':(()=>{const C=S.checkin||{},cs=ds.map(d=>C[d]).filter(Boolean),en=cs.map(c=>+c.energy).filter(x=>x),sl=cs.map(c=>+c.sleep).filter(x=>x),ob=this.observations();
+  __S3__${this.simple()?'':(()=>{const C=S.checkin||{},cs=ds.map(d=>C[d]).filter(Boolean),en=cs.map(c=>+c.energy).filter(x=>x),sl=cs.map(c=>+c.sleep).filter(x=>x),ob=this.observations();
     return `<div class="card"><div class="lbl">Чек-ины недели · ${cs.length}/7</div>
      <div class="kv" style="margin-top:10px"><div><b>${en.length?(en.reduce((a,b)=>a+b,0)/en.length).toFixed(1):'—'}</b><span>энергия</span></div><div><b>${sl.length?(sl.reduce((a,b)=>a+b,0)/sl.length).toFixed(1):'—'}</b><span>сон, ч</span></div><div><b>${ds.filter(d=>this.frozen(d)).length}</b><span>заморожено</span></div></div>
      ${cs.filter(c=>c.win).length?`<details style="margin-top:14px"><summary class="lbl" style="cursor:pointer">Победы недели · ${cs.filter(c=>c.win).length}</summary>${ds.map(d=>C[d]&&C[d].win?`<div class="small" style="padding:6px 0;border-bottom:1px solid var(--line)"><span class="mut">${fd(d)}</span> · ${esc(C[d].win)}</div>`:'').join('')}</details>`:''}
@@ -1126,12 +1173,12 @@ vMe(){
     const hs=S.habits.filter(x=>!x.archived);
     const bestH=Math.max(0,...hs.map(x=>{const[f,s,fr]=this.hFns(x);return this.best(f,s,fr)}));
     const days=Math.max(0,Math.min(diff(this.st,today())+1,this.W*7));
-    h+=`<div class="row" style="gap:16px;margin-top:4px"><div class="ava lg">${esc(this.initial())}</div><div class="sp">
+    h+=`__S1__<div class="row" style="gap:16px;margin-top:4px"><div class="ava lg">${esc(this.initial())}</div><div class="sp">
       <div class="h2" style="font-size:24px">${esc(S.profile.name||'Без имени')}</div><div class="small mut">${esc(this.user.email)}</div>
       <div class="cloud ${this.cloud==='on'?'on':this.cloud==='err'?'err':''}" style="margin-top:6px"><i></i>${this.cloud==='on'?'в облаке'+(this._last?' · '+new Date(this._last).toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'}):''):this.cloud==='err'?'нет связи, сохранено локально':'синхронизация…'}</div></div></div>
     <div class="stat" style="margin-top:18px"><div><b>${days}</b><span>день спринта</span></div><div><b>${this.avg()??'—'}%</b><span>средний счёт</span></div>
      <div><b>${bestH}</b><span>рекорд серии</span></div><div><b>${S.deals.filter(d=>!d.lost&&d.stage>=4).length}</b><span>оплат</span></div></div>
-    <div class="card"><div class="f"><label class="lbl">Имя</label><input value="${esc(S.profile.name)}" onchange="APP.S.profile.name=this.value;APP.save();APP.render()"></div></div>`;
+    __S2__<div class="card"><div class="f"><label class="lbl">Имя</label><input value="${esc(S.profile.name)}" onchange="APP.S.profile.name=this.value;APP.save();APP.render()"></div></div>`;
   }
   if(S.commit)h+=`<div class="card"><div class="lbl">Обязательство</div><div class="quote" style="margin-top:8px">Я, <b>${esc(S.commit.name)}</b>. Обязательство принято ${fd(S.commit.date)}. Спринт с ${fd(S.commit.start)}: ${S.goals.map(g=>esc(g.title)).join(', ')||'—'}.</div></div>`;
   h+=`<div class="card"><div class="lbl">Спринт</div>
