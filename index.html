@@ -938,6 +938,7 @@ vWeek(){
      <div class="kv" style="margin-top:10px"><div><b>${en.length?(en.reduce((a,b)=>a+b,0)/en.length).toFixed(1):'—'}</b><span>энергия</span></div><div><b>${sl.length?(sl.reduce((a,b)=>a+b,0)/sl.length).toFixed(1):'—'}</b><span>сон, ч</span></div><div><b>${ds.filter(d=>this.frozen(d)).length}</b><span>заморожено</span></div></div>
      ${cs.filter(c=>c.win).length?`<details style="margin-top:14px"><summary class="lbl" style="cursor:pointer">Победы недели · ${cs.filter(c=>c.win).length}</summary>${ds.map(d=>C[d]&&C[d].win?`<div class="small" style="padding:6px 0;border-bottom:1px solid var(--line)"><span class="mut">${fd(d)}</span> · ${esc(C[d].win)}</div>`:'').join('')}</details>`:''}
      <div class="lbl" style="margin-top:14px">Наблюдения</div>${ob.out.length?ob.out.map(o=>`<div class="obs">${o}</div>`).join(''):`<div class="small mut" style="margin-top:6px">Появятся после 10 чек-инов, сейчас ${ob.n}. Покажу, как сон и энергия связаны с выполнением дня.</div>`}</div>`})()}
+  ${this.groupCard()}
   <div class="card"><div class="lbl">Партнёр по подотчётности</div><input style="margin-top:8px" value="${esc(S.sprint.partner)}" placeholder="Имя или @ник" onchange="APP.S.sprint.partner=this.value;APP.save()">
    <div class="small mut" style="margin-top:8px">Еженедельный отчёт другому человеку заметно повышает шанс дойти до цели.</div>
    <div class="row" style="margin-top:12px;flex-wrap:wrap"><button class="btn pr sp" onclick="APP.copyReport(${w})">Отчёт партнёру</button>${this.simple()?'':`<button class="btn sp" onclick="APP.copyAI(${w})">Разбор с Claude</button>`}</div>
@@ -1052,7 +1053,7 @@ initAuth(){
   this.sb.auth.onAuthStateChange((ev,ses)=>{
     if(ev==='PASSWORD_RECOVERY'){this._am='reset';this._amsg='Придумай новый пароль';this.user=null;this.go('me');return}
     const u=ses&&ses.user;const was=this.user&&this.user.id;this.user=u||null;
-    if(u&&u.id!==was){if(!this.S.profile.name&&u.user_metadata&&u.user_metadata.name)this.S.profile.name=u.user_metadata.name;this.pull(true)}
+    if(u&&u.id!==was){if(!this.S.profile.name&&u.user_metadata&&u.user_metadata.name)this.S.profile.name=u.user_metadata.name;this.pull(true);this.grpLoad()}if(!u){this.groups=[];this.boards={}}
     if(!u&&was){this.cloud='off'}
     this.render()});
   this.sb.auth.getSession().catch(()=>{this.cloud='err';this.render()});
@@ -1083,6 +1084,40 @@ async forgot(){const e=($('aE')||{}).value.trim();if(!/.+@.+\..+/.test(e))return
 async logout(){if(!confirm('Выйти? Данные останутся в облаке, а с этого устройства будут стёрты.'))return;
   clearTimeout(this._pt);await this.push();try{await this.sb.auth.signOut()}catch(e){}
   this.user=null;this.cloud='off';localStorage.removeItem(KEY);this.S=this.fresh();this.go('home')},
+/* ---------- группы: общий счёт недели ---------- */
+groups:[],boards:{},
+monday(d){return add(d,-((pd(d).getDay()+6)%7))},
+myScores(){const out={};if(!this.S.goals.length)return out;const m0=this.monday(today());
+  for(let k=0;k<3;k++){const mon=add(m0,-7*k);const w=this.weekOf(mon);if(w<1||w>this.W)continue;const ts=this.S.tactics.filter(t=>this.activeIn(t,w));
+    out[mon]={w,score:this.score(w),done:ts.filter(t=>this.wDone(t,w)).length,total:ts.length,day:this.dayAll(today()).p,t:Date.now()}}
+  return out},
+async grpRpc(fn,args){const{data,error}=await this.sb.rpc(fn,args||{});if(error)throw error;return data},
+grpErr(e){const m=String(e&&e.message||e);return /not_found/.test(m)?'Группы с таким кодом нет':/full/.test(m)?'В группе уже 12 человек':/limit/.test(m)?'Можно создать не больше 5 групп':/auth|JWT/.test(m)?'Нужно войти в аккаунт':'Ошибка: '+m.slice(0,60)},
+async grpLoad(){if(!this.user||!this.sb)return;try{this.groups=await this.grpRpc('tw_my_groups')||[];for(const g of this.groups)this.boards[g.code]=await this.grpRpc('tw_group_board',{p_code:g.code});if(this.tab==='week')this.render()}catch(e){}},
+async grpPush(){if(!this.user||!this.sb||!this.groups.length)return;const sc=this.myScores();for(const g of this.groups){try{await this.grpRpc('tw_group_score',{p_code:g.code,p_me:this.S.profile.name||'',p_scores:sc})}catch(e){}}},
+async grpCreate(){const n=($('grN')||{}).value||'';if(!n.trim())return this.toast('Назови группу');
+  try{const code=await this.grpRpc('tw_group_create',{p_name:n.trim(),p_me:this.S.profile.name||''});await this.grpLoad();await this.grpPush();await this.grpLoad();this.toast('Группа создана: '+code)}catch(e){this.toast(this.grpErr(e))}},
+async grpJoin(){const c=(($('grC')||{}).value||'').trim();if(c.length<4)return this.toast('Введи код из 6 символов');
+  try{const g=await this.grpRpc('tw_group_join',{p_code:c,p_me:this.S.profile.name||''});await this.grpLoad();await this.grpPush();await this.grpLoad();this.toast('Ты в группе «'+g.name+'»')}catch(e){this.toast(this.grpErr(e))}},
+async grpLeave(code){if(!confirm('Выйти из группы?'))return;try{await this.grpRpc('tw_group_leave',{p_code:code});delete this.boards[code];await this.grpLoad();this.render()}catch(e){this.toast(this.grpErr(e))}},
+groupCard(){
+  if(!this.user)return `<div class="card"><div class="lbl">Группа</div><div class="small mut" style="margin-top:8px">Счёт недели вместе с 2–5 людьми: каждый видит проценты друг друга по воскресеньям. Работает после входа в аккаунт.</div><button class="btn sm" style="margin-top:12px" onclick="APP.go('me')">Войти</button></div>`;
+  const m0=this.monday(today()),m1=add(m0,-7);
+  let h=this.groups.map(g=>{const b=this.boards[g.code]||{members:[]};const ms=b.members||[];
+    const avg=k=>{const v=ms.map(x=>(x.scores||{})[k]).filter(x=>x&&x.score!=null).map(x=>x.score);return v.length?Math.round(v.reduce((a,c)=>a+c,0)/v.length):null};
+    const me=ms.find(x=>x.id===this.user.id);
+    return `<div class="card"><div class="row"><div class="sp"><div class="lbl">Группа · код <b style="color:var(--pb);letter-spacing:.12em">${esc(g.code)}</b></div><div class="h2" style="font-size:17px;margin-top:4px">${esc(g.name)}</div></div><button class="btn sm" onclick="APP.copy('${esc(g.code)}')">Код</button></div>
+     <div class="kv" style="margin-top:12px"><div><b>${avg(m0)??'—'}${avg(m0)!=null?'%':''}</b><span>группа, эта нед.</span></div><div><b>${avg(m1)??'—'}${avg(m1)!=null?'%':''}</b><span>прошлая</span></div><div><b>${ms.length}</b><span>человек</span></div></div>
+     <table class="grid" style="margin-top:12px"><tr><th style="text-align:left">Участник</th><th>Эта нед.</th><th>Прошлая</th><th>День</th></tr>
+     ${ms.map(x=>{const a=(x.scores||{})[m0],p=(x.scores||{})[m1];return `<tr><td class="nm" style="font-size:13px">${x.id===this.user.id?'<b>'+esc(x.name||'Я')+'</b>':esc(x.name||'Без имени')}</td>
+       <td><span class="pill ${a&&a.score>=85?'c':a&&a.score!=null?'p':''}">${a&&a.score!=null?a.score+'%':'—'}</span></td><td class="mut" style="font-family:var(--mono);font-size:12px">${p&&p.score!=null?p.score+'%':'—'}</td><td class="mut" style="font-family:var(--mono);font-size:12px">${a?Math.round((a.day||0)*100)+'%':'—'}</td></tr>`}).join('')}</table>
+     <div class="row" style="margin-top:12px;flex-wrap:wrap"><button class="btn sm" onclick="APP.grpLoad().then(()=>APP.toast('Обновлено'))">Обновить</button><button class="btn sm gh" onclick="APP.copy('Присоединяйся к моей группе в «12 недель»: код ${esc(g.code)} → https://vikagladysheva07-source.github.io/12-weeks/')">Пригласить</button><span class="sp"></span><button class="btn sm gh" onclick="APP.grpLeave('${esc(g.code)}')">Выйти</button></div>
+     ${me?'':'<div class="small dim" style="margin-top:8px">Твой счёт появится после первой отметки.</div>'}</div>`}).join('');
+  if(this.groups.length<5)h+=`<div class="card"><div class="lbl">${this.groups.length?'Ещё группа':'Группа'}</div><div class="small mut" style="margin-top:8px">2–5 человек, которые видят счёт недели друг друга. Самый сильный способ не бросить.</div>
+    <div class="row" style="margin-top:12px"><input id="grN" placeholder="Название новой группы"><button class="btn sm" onclick="APP.grpCreate()">Создать</button></div>
+    <div class="row" style="margin-top:10px"><input id="grC" placeholder="Код приглашения" style="text-transform:uppercase;font-family:var(--mono)" maxlength="6"><button class="btn sm" onclick="APP.grpJoin()">Войти</button></div></div>`;
+  return h},
+
 async pull(first){if(!this.user||!this.sb)return;
   try{const{data,error}=await this.sb.from('tw_state').select('data').eq('user_id',this.user.id).maybeSingle();if(error)throw error;
     const rem=data&&data.data;
@@ -1093,7 +1128,7 @@ async pull(first){if(!this.user||!this.sb)return;
   }catch(e){this.cloud='err';this.render()}},
 async push(){if(!this.user||!this.sb)return;
   try{const{error}=await this.sb.from('tw_state').upsert({user_id:this.user.id,data:this.S,updated_at:new Date().toISOString()});if(error)throw error;
-    if(this.cloud!=='on'){this.cloud='on';if(this.tab==='me')this.render()}this._last=Date.now()}catch(e){this.cloud='err'}},
+    if(this.cloud!=='on'){this.cloud='on';if(this.tab==='me')this.render()}this._last=Date.now();this.grpPush()}catch(e){this.cloud='err'}},
 mergeLog(a,b,lta,ltb,pre){const out={};
   new Set([...Object.keys(a||{}),...Object.keys(b||{})]).forEach(d=>{const x=(a||{})[d]||{},y=(b||{})[d]||{},o={};
     new Set([...Object.keys(x),...Object.keys(y)]).forEach(k=>{const key=pre+d+'|'+k,ta=(lta||{})[key]||0,tb=(ltb||{})[key]||0;let v;
