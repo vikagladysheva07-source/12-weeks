@@ -268,6 +268,12 @@ details>summary::before{content:"▸ ";color:var(--pb)}details[open]>summary::be
 .sval{color:var(--mut);font-size:14px;white-space:nowrap;max-width:45%;overflow:hidden;text-overflow:ellipsis}
 .srow.warn{color:var(--pb)}
 .sec{margin:18px 0 6px}
+.donebar{display:flex;align-items:center;gap:8px;width:100%;padding:9px 14px;margin:6px 0;border-radius:12px;border:1px dashed var(--line2);color:var(--mut);font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.donebar svg{color:var(--cb)}
+.daynav{position:sticky;top:0;z-index:5;padding:8px 0 6px;margin:12px -4px 6px;background:linear-gradient(180deg,rgba(7,7,13,.96) 70%,rgba(7,7,13,0));backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.tundo{margin-left:10px;padding:4px 10px;border-radius:8px;background:rgba(155,111,232,.25);border:1px solid rgba(196,164,255,.5);color:#fff;font-weight:700;font-size:13px}
+.toast.act{pointer-events:auto}
+@media(min-width:1024px){.daynav{top:0}}
 </style>
 </head>
 <body>
@@ -377,7 +383,10 @@ const MON_EN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov',
 const I18N_BASE={'пн':'Mon','вт':'Tue','ср':'Wed','чт':'Thu','пт':'Fri','сб':'Sat','вс':'Sun','понедельник':'Monday','вторник':'Tuesday','среда':'Wednesday','четверг':'Thursday','пятница':'Friday','суббота':'Saturday','воскресенье':'Sunday',
  'Январь':'January','Февраль':'February','Март':'March','Апрель':'April','Май':'May','Июнь':'June','Июль':'July','Август':'August','Сентябрь':'September','Октябрь':'October','Ноябрь':'November','Декабрь':'December',
  'янв':'Jan','фев':'Feb','мар':'Mar','апр':'Apr','мая':'May','июн':'Jun','июл':'Jul','авг':'Aug','сен':'Sep','окт':'Oct','ноя':'Nov','дек':'Dec',
- 'Главное':'Today','Привычки':'Habits','день подряд':'day streak','Главное на сегодня':'Top priority today','Главное на этот день':'Top priority for this day','Главное на':'Top priority for',
+ 'Главное':'Today','Привычки':'Habits','день подряд':'day streak','Отменить':'Undo','Отменено':'Undone','Отмечено':'Done','Сделано':'Done','показать':'show','скрыть':'hide','Карточка в сторис':'Story card','Карточка сохранена':'Card saved',
+ 'По ссылке':'Magic link','С паролем':'Password','Получить ссылку':'Send link','Без пароля: введи почту, нажми на ссылку в письме — и ты внутри. Аккаунт создастся сам.':'No password: enter your email, tap the link in the message — and you’re in. The account is created automatically.',
+ 'Письмо отправлено. Открой ссылку из него на этом устройстве.':'Email sent. Open the link from it on this device.','Расписание в календарь':'Add schedule to calendar','Напоминания утро/день/вечер, чек-ин и воскресный разбор':'Morning/day/evening reminders, check-in and Sunday review',
+ 'Прошлые программы':'Past programs','Файл календаря сохранён — открой его на телефоне':'Calendar file saved — open it on your phone','Удалить из истории?':'Remove from history?','Урок':'Lesson','Главное на сегодня':'Top priority today','Главное на этот день':'Top priority for this day','Главное на':'Top priority for',
  'Одна длинная программа за раз. Короткие челленджи добавляются внутрь неё во вкладке «Программа».':'One long program at a time. Short challenges are added inside it in the Program tab.',
  '2–5 человек, которые видят счёт недели друг друга. Самый сильный способ не бросить.':'2–5 people who see each other’s weekly score. The strongest way not to quit.',
  '«Разбор с Claude» копирует полную картину недели с инструкцией: вставь в чат — и получишь разбор как от партнёра.':'“Review with Claude” copies the full week with instructions: paste it into the chat and get a partner-level review.',
@@ -393,7 +402,10 @@ norm(s){const f=this.fresh();for(const k in f)if(s[k]==null)s[k]=f[k];return s},
 load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.sprint)return this.norm(s)}catch(e){}return this.fresh()},
 save(){this._tix=Object.fromEntries(this.S.tactics.map(t=>[t.id,t]));this.S.t=Date.now();try{localStorage.setItem(KEY,JSON.stringify(this.S))}catch(e){}
   if(this.user){clearTimeout(this._pt);this._pt=setTimeout(()=>this.push(),1200)}},
-toast(m){const t=$('toast');t.textContent=m;this.tr(t);t.classList.add('on');clearTimeout(this._tt);this._tt=setTimeout(()=>t.classList.remove('on'),2000)},
+toast(m,undo){const t=$('toast');t.innerHTML=esc(m)+(undo?` <button class="tundo" onclick="APP.undo()">Отменить</button>`:'');this.tr(t);t.classList.toggle('act',!!undo);t.classList.add('on');clearTimeout(this._tt);this._tt=setTimeout(()=>t.classList.remove('on'),undo?4500:2000)},
+snap(){const S=this.S;this._snap={log:JSON.stringify(S.log),hlog:JSON.stringify(S.hlog),skip:JSON.stringify(S.skip||{}),tasks:JSON.stringify(S.tasks||[]),lt:JSON.stringify(S.lt||{})}},
+undo(){const z=this._snap;if(!z)return;const S=this.S;S.log=JSON.parse(z.log);S.hlog=JSON.parse(z.hlog);S.skip=JSON.parse(z.skip);S.tasks=JSON.parse(z.tasks);S.lt=JSON.parse(z.lt);
+  for(const k in S.lt)S.lt[k]=Date.now();this._snap=null;this.save();this.render();this.toast('Отменено')},
 
 init(){
   this.S=this.load();
@@ -463,7 +475,7 @@ v(t,d){const x=(this.S.log[d]||{})[t.id];return x==null?0:(x===true?1:+x||0)},
 msDoneDate(t){let r=null;for(const d in this.S.log){if(this.S.log[d][t.id]&&(!r||d<r))r=d}return r},
 frozen(d){return !!((this.S.skip||{})[d]||{}).__all},
 skipped(id,d){const x=(this.S.skip||{})[d]||{};if(x.__all||x[id])return true;const t=this._tix&&this._tix[id];return !!(t&&((t.dfrom&&d<t.dfrom)||(t.dto&&d>t.dto)))},
-setSkip(id,d,on){const K=this.S.skip=this.S.skip||{};this.stamp('S|'+d+'|'+id);K[d]=K[d]||{};if(on)K[d][id]=true;else delete K[d][id];if(!Object.keys(K[d]).length)delete K[d];this.save();this.render()},
+setSkip(id,d,on){this.snap();const K=this.S.skip=this.S.skip||{};this.stamp('S|'+d+'|'+id);K[d]=K[d]||{};if(on)K[d][id]=true;else delete K[d][id];if(!Object.keys(K[d]).length)delete K[d];this.save();this.render()},
 skipsIn(t,w){return this.wDays(w).filter(d=>this.skipped(t.id,d)).length},
 wTarget(t,w){const sk=w?this.skipsIn(t,w):0;
   return t.type==='check'?Math.max(1,Math.min(+t.target||1,7-sk)):t.type==='num'?(+t.per||1)*Math.max(1,Math.min(+t.days||7,7-sk)):t.type==='count'?(+t.target||1):1},
@@ -481,7 +493,7 @@ metricVal(m){if(m.auto==='paid')return this.S.deals.filter(x=>!x.lost&&x.stage>=
   if(m.auto&&m.auto.startsWith('t:')){const t=this.S.tactics.find(x=>x.id===m.auto.slice(2));return t?this.total(t):0}
   return +m.cur||0},
 stamp(k){this.S.lt=this.S.lt||{};this.S.lt[k]=Date.now()},
-setLog(tid,d,val){const L=this.S.log;this.stamp(d+'|'+tid);if(val)this.buzz(12);this._pop=tid;L[d]=L[d]||{};if(!val)delete L[d][tid];else L[d][tid]=val;if(!Object.keys(L[d]).length)delete L[d];this.save();this.render()},
+setLog(tid,d,val){this.snap();const L=this.S.log;this.stamp(d+'|'+tid);if(val)this.buzz(12);this._pop=tid;L[d]=L[d]||{};if(!val)delete L[d][tid];else L[d][tid]=val;if(!Object.keys(L[d]).length)delete L[d];this.save();this.render();if(val)this.toast('Отмечено',true)},
 toggle(tid,d){const t=this.S.tactics.find(x=>x.id===tid);this.setLog(tid,d,this.v(t,d)?0:true)},
 inc(tid,d,n){const t=this.S.tactics.find(x=>x.id===tid);this.setLog(tid,d,Math.max(0,this.v(t,d)+n))},
 setNum(tid,d,el){this.setLog(tid,d,Math.max(0,+el.value||0))},
@@ -492,7 +504,7 @@ toggleMs(tid,d){const t=this.S.tactics.find(x=>x.id===tid);
 /* ---------- привычки ---------- */
 hOn(h,d){return !!(this.S.hlog[d]||{})[h.id]},
 hSched(h,d){return d>=h.created&&(h.days||[]).includes(pd(d).getDay())&&!this.skipped(h.id,d)},
-hToggle(id,d){if(d>today())return;const L=this.S.hlog;this.stamp('H|'+d+'|'+id);L[d]=L[d]||{};if(L[d][id])delete L[d][id];else{L[d][id]=true;this.buzz(12);this._pop=id}if(!Object.keys(L[d]).length)delete L[d];this.save();this.render();if(this._hcal)this.hCal(id)},
+hToggle(id,d){if(d>today())return;this.snap();const L=this.S.hlog;this.stamp('H|'+d+'|'+id);L[d]=L[d]||{};if(L[d][id])delete L[d][id];else{L[d][id]=true;this.buzz(12);this._pop=id}if(!Object.keys(L[d]).length)delete L[d];this.save();this.render();if(this._hcal)this.hCal(id);else if(L[d]&&L[d][id])this.toast('Отмечено',true)},
 /* универсальная серия: fn(d) — выполнено ли, sch(d) — запланировано ли */
 streak(fn,sch,from){let d=today(),n=0,lim=400;if(!fn(d))d=add(d,-1);
   while(lim--&&d>=from){if(sch(d)){if(fn(d))n++;else break}d=add(d,-1)}return n},
@@ -582,13 +594,13 @@ vHome(){
   if(grp==='goal'){
     S.goals.forEach(g=>{const gt=ts.filter(t=>t.goal===g.id);if(!gt.length)return;
       h+=`<div class="gh3"><span class="dot" style="background:${g.color}"></span><span class="lbl" style="color:var(--tx)">${esc(g.title)}</span><span class="sp"></span><span class="pill">${this.score(w,g.id)??'—'}%</span></div>`;
-      gt.forEach(t=>h+=this.tRow(t,w))});
+      h+=this.rowsDone(gt.map(t=>({k:'t',o:t})),w,g.id)});
     if(hs.length){h+=`<div class="gh3"><span class="dot" style="background:var(--cb)"></span><span class="lbl" style="color:var(--tx)">Привычки</span><span class="sp"></span>${this.simple()?'':`<button class="pill" onclick="APP.go('habits')">все</button>`}</div>`;hs.forEach(x=>h+=this.hRow(x))}
   }else{
     const items=[...ts.map(t=>({k:'t',o:t,tod:t.tod||''})),...hs.map(x=>({k:'h',o:x,tod:x.tod||''}))];
     ['m','d','e',''].forEach(k=>{const it=items.filter(i=>i.tod===k);if(!it.length)return;
       h+=`<div class="todh"><span class="lbl">${this.TOD[k]}</span><span class="ln"></span></div>`;
-      it.forEach(i=>h+=i.k==='t'?this.tRow(i.o,w,true):this.hRow(i.o))});
+      h+=this.rowsDone(it,w,k)});
   }
   const ci=(S.checkin||{})[this.day];h+='__S3__';
   if(this.day<=td)h+=`<div class="card" style="margin-top:22px"><div class="row"><div class="sp"><div class="lbl">Вечерний чек-ин</div><div class="small mut" style="margin-top:4px">${ci?`Энергия ${ci.energy||'—'}/5 · сон ${ci.sleep||'—'} ч${ci.win?' · '+esc(ci.win):''}`:'60 секунд: энергия, сон, победа дня, главное на завтра'}</div></div>
@@ -608,8 +620,8 @@ dayMenu(){const d=this.day,fz=this.frozen(d);
 frzLimit(){const p=this.S.pref||{};return p.freezes==null?2:+p.freezes},
 frzUsed(d){const m=d.slice(0,7),K=this.S.skip||{};return Object.keys(K).filter(x=>x.slice(0,7)===m&&K[x].__all).length},
 frzLeft(d){return Math.max(0,this.frzLimit()-this.frzUsed(d))},
-freeze(d,on){if(on&&this.mode==='strict')return this.toast('В строгой программе заморозок нет: пропуск — день 1 заново');if(on&&this.frzLeft(d)<=0)return this.toast(`Заморозки на ${MONF[pd(d).getMonth()].toLowerCase()} закончились: ${this.frzLimit()} из ${this.frzLimit()}`);
-  const K=this.S.skip=this.S.skip||{};this.stamp('S|'+d+'|__all');K[d]=K[d]||{};if(on)K[d].__all=true;else delete K[d].__all;if(!Object.keys(K[d]).length)delete K[d];this.save();this.render();this.toast(on?'День заморожен':'День разморожен')},
+freeze(d,on){this.snap();if(on&&this.mode==='strict')return this.toast('В строгой программе заморозок нет: пропуск — день 1 заново');if(on&&this.frzLeft(d)<=0)return this.toast(`Заморозки на ${MONF[pd(d).getMonth()].toLowerCase()} закончились: ${this.frzLimit()} из ${this.frzLimit()}`);
+  const K=this.S.skip=this.S.skip||{};this.stamp('S|'+d+'|__all');K[d]=K[d]||{};if(on)K[d].__all=true;else delete K[d].__all;if(!Object.keys(K[d]).length)delete K[d];this.save();this.render();this.toast(on?'День заморожен':'День разморожен',true)},
 lpMenu(k,id){const d=this.day;if(k==='k')return this.taskEdit(id);const o=k==='t'?this.S.tactics.find(x=>x.id===id):this.S.habits.find(x=>x.id===id);if(!o)return;
   const sk=this.skipped(id,d)&&!this.frozen(d);
   this.open(`<div class="row"><div class="h2 sp" style="font-size:17px">${esc(o.title)}</div><button class="btn sm gh" onclick="APP.close()">Закрыть</button></div><div class="menu" style="margin-top:8px">
@@ -646,7 +658,7 @@ tasksBlock(tk){const d=this.day;
   h+=`<form class="row" style="margin:6px 0 2px" onsubmit="event.preventDefault();APP.taskAdd(this.q.value,'${d}');this.q.value=''"><input name="q" placeholder="Новая задача на этот день" autocomplete="off" style="flex:1"><button class="ic" type="submit" aria-label="Добавить">${I.plus}</button></form>`;
   return h},
 taskAdd(title,d){title=(title||'').trim();if(!title)return;this.S.tasks=this.S.tasks||[];this.S.tasks.push({id:'k'+uid(),title,date:d||today(),done:'',t:Date.now()});this.save();this.render();this.buzz(8)},
-taskToggle(id){const x=this.S.tasks.find(t=>t.id===id);if(!x)return;x.done=x.done?'':today();x.t=Date.now();if(x.done){this.buzz(12);this._pop=id}this.save();this.render()},
+taskToggle(id){const x=this.S.tasks.find(t=>t.id===id);if(!x)return;this.snap();x.done=x.done?'':today();x.t=Date.now();if(x.done){this.buzz(12);this._pop=id}this.save();this.render();if(x.done)this.toast('Сделано',true)},
 taskDel(id){this.S.del=[...(this.S.del||[]),id];this.S.tasks=this.S.tasks.filter(t=>t.id!==id);this.save();this.close();this.render()},
 taskEdit(id){const x=this.S.tasks.find(t=>t.id===id);if(!x)return;
   this.open(`<div class="row"><div class="h2 sp">Задача</div><button class="btn sm gh" onclick="APP.close()">Закрыть</button></div>
@@ -728,6 +740,12 @@ reorder(kind,ids){const S=this.S;
     S.tactics.forEach(t=>{if(t.goal!==gid)return out.push(t);if(!placed){placed=true;ids.forEach(i=>{const x=m.get(i);if(x)out.push(x)})}});
     S.tactics=out}
   this.save();this.buzz(8);this.render()},
+/* строки дня: несделанные сверху, сделанные свёрнуты */
+isDone(i){const d=this.day;if(i.k==='h')return this.hOn(i.o,d);const t=i.o,v=this.v(t,d);return t.type==='check'?v>0:t.type==='num'?v>=(+t.per||1):t.type==='count'?v>0:!!this.msDoneDate(t)},
+rowsDone(items,w,key){const tod=((this.S.pref||{}).group||'tod')==='tod';const open=items.filter(i=>!this.isDone(i)),done=items.filter(i=>this.isDone(i));
+  const r=i=>i.k==='t'?this.tRow(i.o,w,tod):this.hRow(i.o);let h=open.map(r).join('');
+  if(done.length){const show=this._showDone===key;h+=`<button class="donebar" onclick="APP._showDone=APP._showDone==='${key}'?null:'${key}';APP.render()">${I.ok2} Сделано ${done.length}<span class="sp"></span>${show?'скрыть':'показать'}</button>${show?done.map(r).join(''):''}`}
+  return h},
 tRow(t,w,showGoal){
   const d=this.day,val=this.v(t,d),wv=this.wVal(t,w),wt=this.wTarget(t,w),done=wv>=wt,sk=this.skipped(t.id,d)&&!this.frozen(d);
   let ctl='',meta='';
@@ -1118,7 +1136,7 @@ vWeek(){
   ${this.groupCard()}
   <div class="card"><div class="lbl">Партнёр по подотчётности</div><input style="margin-top:8px" value="${esc(S.sprint.partner)}" placeholder="Имя или @ник" onchange="APP.S.sprint.partner=this.value;APP.save()">
    <div class="small mut" style="margin-top:8px">Еженедельный отчёт другому человеку заметно повышает шанс дойти до цели.</div>
-   <div class="row" style="margin-top:12px;flex-wrap:wrap"><button class="btn pr sp" onclick="APP.copyReport(${w})">Отчёт партнёру</button>${this.simple()?'':`<button class="btn sp" onclick="APP.copyAI(${w})">Разбор с Claude</button>`}</div>
+   <div class="row" style="margin-top:12px;flex-wrap:wrap"><button class="btn pr sp" onclick="APP.shareWeek(${w})">Карточка в сторис</button><button class="btn sp" onclick="APP.copyReport(${w})">Отчёт партнёру</button>${this.simple()?'':`<button class="btn sp" onclick="APP.copyAI(${w})">Разбор с Claude</button>`}</div>
    ${this.simple()?'':`<div class="small dim" style="margin-top:8px">«Разбор с Claude» копирует полную картину недели с инструкцией: вставь в чат — и получишь разбор как от партнёра.</div>`}</div>`;
   if(!this.simple()&&(w%4===0||w===this.W))h+=this.monthBlock(w);
   return h;
@@ -1157,6 +1175,32 @@ aiReport(w){const S=this.S,ds=this.wDays(w),ts=S.tactics.filter(t=>this.activeIn
   const dl=S.deals||[];if(dl.length)r+=`\n\nВОРОНКА: всего контактов ${dl.length}, созвонов ${dl.filter(x=>(x.max??x.stage)>=1).length}, офферов ${dl.filter(x=>(x.max??x.stage)>=2).length}, оплат ${dl.filter(x=>!x.lost&&x.stage>=4).length}`;
   return r},
 async copyAI(w){const r=this.aiReport(w);try{await navigator.clipboard.writeText(r);this.toast('Скопировано — вставь в чат с Claude')}catch(e){this.open(`<div class="lbl">Разбор с Claude</div><textarea style="min-height:300px;margin-top:10px" onclick="this.select()">${esc(r)}</textarea><button class="btn" style="margin-top:12px" onclick="APP.close()">Закрыть</button>`)}},
+async shareWeek(w){const S=this.S,ds=this.wDays(w),sc=this.score(w),P=this.prog();
+  try{await document.fonts.load('900 120px "DM Sans"');await document.fonts.load('400 40px "DM Mono"')}catch(e){}
+  const c=document.createElement('canvas');c.width=1080;c.height=1920;const x=c.getContext('2d');
+  const bg=x.createLinearGradient(0,0,0,1920);bg.addColorStop(0,'#0B0718');bg.addColorStop(1,'#07070D');x.fillStyle=bg;x.fillRect(0,0,1080,1920);
+  const glow=(cx,cy,r,col)=>{const g=x.createRadialGradient(cx,cy,0,cx,cy,r);g.addColorStop(0,col);g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(0,0,1080,1920)};
+  glow(900,200,700,'rgba(91,47,190,.45)');glow(100,1500,600,'rgba(0,122,140,.28)');
+  const card=(y,hh)=>{x.save();x.fillStyle='rgba(22,20,34,.72)';x.strokeStyle='rgba(255,255,255,.12)';x.lineWidth=2;x.beginPath();x.roundRect(80,y,920,hh,44);x.fill();x.stroke();x.restore()};
+  x.fillStyle='rgba(242,237,226,.6)';x.font='500 30px "DM Mono",monospace';x.textAlign='left';x.fillText((P?P.name.toUpperCase():'12 НЕДЕЛЬ')+'  ·  '+fd(ds[0]).toUpperCase()+' — '+fd(ds[6]).toUpperCase(),100,190);
+  x.fillStyle='#F2EDE2';x.font='900 128px "DM Sans",sans-serif';x.fillText(this.mode==='strict'?'ДЕНЬ '+this.strictRun():'НЕДЕЛЯ '+w,96,330);
+  x.fillStyle='rgba(242,237,226,.55)';x.font='500 40px "DM Sans",sans-serif';x.fillText(this.mode==='strict'?'подряд из '+this.sprintDays():'из '+this.W,100,400);
+  card(470,620);
+  const cx=540,cy=780,R=220;x.lineWidth=36;x.lineCap='round';x.strokeStyle='rgba(0,0,0,.5)';x.beginPath();x.arc(cx,cy,R,0,Math.PI*2);x.stroke();
+  const pct=this.mode==='score'?(sc??0):Math.round(this.dayAll(today()).p*100),ok=pct>=(+S.sprint.threshold||85);
+  const grd=x.createLinearGradient(cx-R,cy-R,cx+R,cy+R);grd.addColorStop(0,ok?'#7FEBF5':'#C4A4FF');grd.addColorStop(1,ok?'#009BAB':'#5B2FBE');
+  x.shadowColor=ok?'rgba(0,196,212,.8)':'rgba(155,111,232,.8)';x.shadowBlur=40;x.strokeStyle=grd;x.beginPath();x.arc(cx,cy,R,-Math.PI/2,-Math.PI/2+Math.PI*2*pct/100);x.stroke();x.shadowBlur=0;
+  x.fillStyle='#F2EDE2';x.textAlign='center';x.font='900 150px "DM Sans",sans-serif';x.fillText(pct+'%',cx,cy+50);
+  x.fillStyle='rgba(242,237,226,.6)';x.font='500 28px "DM Mono",monospace';x.fillText(this.mode==='score'?'СЧЁТ НЕДЕЛИ · ПЛАНКА '+(S.sprint.threshold||85):'ВЫПОЛНЕНИЕ ДНЯ',cx,cy+120);
+  const gs=S.goals.filter(g=>!g.mini).slice(0,3);let y=1150;
+  gs.forEach(g=>{card(y,170);x.textAlign='left';x.fillStyle=g.color;x.beginPath();x.arc(140,y+85,14,0,Math.PI*2);x.fill();
+    x.fillStyle='#F2EDE2';x.font='700 44px "DM Sans",sans-serif';let t=g.title;while(x.measureText(t).width>560)t=t.slice(0,-2);x.fillText(t,190,y+100);
+    const gsc=this.score(w,g.id);x.textAlign='right';x.font='900 56px "DM Sans",sans-serif';x.fillStyle=gsc!=null&&gsc>=(+S.sprint.threshold||85)?'#5EE0EE':'#C4A4FF';x.fillText(gsc==null?'—':gsc+'%',960,y+105);y+=200});
+  x.textAlign='left';x.fillStyle='rgba(242,237,226,.5)';x.font='500 30px "DM Mono",monospace';x.fillText('12 НЕДЕЛЬ  ·  СИСТЕМА ДОСТИЖЕНИЯ ЦЕЛЕЙ',100,1800);
+  x.fillStyle='rgba(242,237,226,.35)';x.font='400 26px "DM Mono",monospace';x.fillText(location.host+location.pathname.replace(/\/$/,''),100,1850);
+  const blob=await new Promise(r=>c.toBlob(r,'image/png'));const file=new File([blob],`week-${w}.png`,{type:'image/png'});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:'Неделя '+w});return}catch(e){if(e.name==='AbortError')return}}
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=file.name;a.click();this.toast('Карточка сохранена')},
 async copyReport(w){const r=this.report(w);try{await navigator.clipboard.writeText(r);this.toast('Отчёт скопирован')}catch(e){this.open(`<div class="lbl">Отчёт</div><textarea style="min-height:260px;margin-top:10px">${esc(r)}</textarea><button class="btn" style="margin-top:12px" onclick="APP.close()">Закрыть</button>`)}},
 
 /* ---------- неделя 13 ---------- */
@@ -1176,13 +1220,14 @@ newSprint(){const s=prompt('Дата старта нового спринта (�
 vMe(){
   const S=this.S;let h='';
   if(!this.user){
-    const m=this._am||'in';
+    const m=this._am||'link';
     h+=`<div class="lbl">Личный кабинет</div><div class="h1">${m==='up'?'Регистрация':m==='reset'?'Новый пароль':'Вход'}</div>
-    <div class="card">${m==='reset'?'':`<div class="tabs2"><button class="${m==='in'?'on':''}" onclick="APP._am='in';APP.render()">Вход</button><button class="${m==='up'?'on':''}" onclick="APP._am='up';APP.render()">Регистрация</button></div>`}
+    <div class="card">${m==='reset'?'':`<div class="tabs2" style="grid-template-columns:1fr 1fr 1fr"><button class="${m==='link'?'on':''}" onclick="APP._am='link';APP.render()">По ссылке</button><button class="${m==='in'?'on':''}" onclick="APP._am='in';APP.render()">С паролем</button><button class="${m==='up'?'on':''}" onclick="APP._am='up';APP.render()">Регистрация</button></div>`}
+     ${m==='link'?`<div class="small mut" style="margin:4px 0 10px">Без пароля: введи почту, нажми на ссылку в письме — и ты внутри. Аккаунт создастся сам.</div>`:''}
      ${m==='up'?`<div class="f"><label class="lbl">Имя</label><input id="aN" autocomplete="name" value="${esc(S.profile.name)}"></div>`:''}
      ${m!=='reset'?`<div class="f"><label class="lbl">Почта</label><input id="aE" type="email" autocomplete="email" inputmode="email"></div>`:''}
-     <div class="f"><label class="lbl">${m==='reset'?'Новый пароль':'Пароль'}</label><input id="aP" type="password" autocomplete="${m==='in'?'current-password':'new-password'}" placeholder="${m==='in'?'':'не короче 8 символов'}"></div>
-     <button class="btn pr w" onclick="APP.auth('${m}')">${m==='up'?'Создать аккаунт':m==='reset'?'Сохранить пароль':'Войти'}</button>
+     ${m==='link'?'':`<div class="f"><label class="lbl">${m==='reset'?'Новый пароль':'Пароль'}</label><input id="aP" type="password" autocomplete="${m==='in'?'current-password':'new-password'}" placeholder="${m==='in'?'':'не короче 8 символов'}"></div>`}
+     <button class="btn pr w" onclick="APP.auth('${m}')">${m==='up'?'Создать аккаунт':m==='reset'?'Сохранить пароль':m==='link'?'Получить ссылку':'Войти'}</button>
      ${m==='in'?`<button class="btn gh sm w" style="margin-top:10px;border:0" onclick="APP.forgot()">Забыли пароль?</button>`:''}
      <div class="small" id="aMsg" style="margin-top:10px;color:var(--pb)">${esc(this._amsg||'')}</div></div>
     <div class="card small mut">Аккаунт хранит твою систему в облаке: телефон и компьютер видят одно и то же, а если сменишь телефон, ничего не потеряется. ${S.goals.length?'Уже отмеченное на этом устройстве перенесётся в аккаунт при входе.':''}
@@ -1219,6 +1264,8 @@ vMe(){
     row('Выгрузить JSON','',"APP.exportData()"),
     `<label class="srow" style="cursor:pointer"><div class="sp"><div>Загрузить JSON</div></div>${I.r}<input type="file" accept=".json" style="display:none" onchange="APP.importData(this)"></label>`,
     row('Ссылка-шаблон','',"APP.tplLink().then(l=>APP.copy(l))",'Передать цели и тактики другому человеку'),
+    row('Расписание в календарь','',"APP.exportIcs()",'Напоминания утро/день/вечер, чек-ин и воскресный разбор'),
+    row('Прошлые программы',String((S.archive||[]).length),(S.archive||[]).length?"APP.historySheet()":null),
     row('Начать с нуля','',"APP.wipe()",'','warn')]);
   h+=sec('О системе',[
     row('Метод','',"APP.methodSheet()",'Моран, 4DX, Гольвитцер, Эттинген, Клир'),
@@ -1226,6 +1273,25 @@ vMe(){
   if(this.user)h+=`<button class="btn del w" style="margin-top:18px" onclick="APP.logout()">Выйти из аккаунта</button>`;
   return h;
 },
+exportIcs(){const S=this.S,st=this.st,en=this.end(),u=d=>d.replace(/-/g,''),esc2=t=>String(t).replace(/([,;\\])/g,'\\$1').replace(/\n/g,'\\n');
+  const now=new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z',until=u(en)+'T235959';
+  let ev=[];const add_=(uid_,title,desc,date,hm,rr)=>ev.push(`BEGIN:VEVENT\r\nUID:${uid_}@12weeks\r\nDTSTAMP:${now}\r\nDTSTART:${u(date)}T${hm}00\r\nDURATION:PT15M\r\n${rr?'RRULE:'+rr+';UNTIL='+until+'\r\n':''}SUMMARY:${esc2(title)}\r\nDESCRIPTION:${esc2(desc)}\r\nBEGIN:VALARM\r\nTRIGGER:PT0M\r\nACTION:DISPLAY\r\nDESCRIPTION:${esc2(title)}\r\nEND:VALARM\r\nEND:VEVENT`);
+  const by=k=>S.tactics.filter(t=>t.active!==false&&t.type!=='ms'&&(t.tod||'')===k).map(t=>'• '+t.title+(t.when?' — '+t.when:''));
+  const hb=k=>S.habits.filter(h=>!h.archived&&(h.tod||'')===k).map(h=>'• '+h.title);
+  const blocks=[['m','0800','Утро'],['d','1300','День'],['e','2000','Вечер']];
+  blocks.forEach(([k,hm,nm])=>{const items=[...by(k),...hb(k),...(k==='e'?by(''):[]),...(k==='e'?hb(''):[])];if(items.length)add_('tod-'+k,nm+' · '+(S.sprint.title||'12 недель'),items.join('\n'),st<today()?today():st,hm,'FREQ=DAILY')});
+  add_('checkin','Вечерний чек-ин · 60 секунд','Энергия, сон, победа дня, главное на завтра',st<today()?today():st,'2130','FREQ=DAILY');
+  const sun=(()=>{let d=st<today()?today():st;while(pd(d).getDay()!==0)d=add(d,1);return d})();
+  add_('review','Разбор недели · 15 минут','Счёт недели, что сработало, что мешало, обещание на неделю. Отчёт партнёру.',sun,'1900','FREQ=WEEKLY;BYDAY=SU');
+  const ics='BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//12 weeks//RU\r\nCALSCALE:GREGORIAN\r\n'+ev.join('\r\n')+'\r\nEND:VCALENDAR\r\n';
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([ics],{type:'text/calendar'}));a.download='12-weeks.ics';a.click();this.toast('Файл календаря сохранён — открой его на телефоне')},
+historySheet(){const A=this.S.archive||[];
+  this.open(`<div class="row"><div class="h2 sp">Прошлые программы</div><button class="btn sm gh" onclick="APP.close()">Закрыть</button></div>
+  ${A.slice().reverse().map((x,ri)=>{const i=A.length-1-ri,sp=x.sprint||{},ws=(x.weeks||{}),F=ws.final||{},days=sp.days||((+sp.weeks||12)*7),endD=add(sp.start,days-1);
+    return `<div class="card" style="background:var(--s2)"><div class="row"><div class="sp"><b>${esc(sp.title||'Программа')}</b><div class="small mut">${fd(sp.start)} — ${fd(endD)} · ${(x.goals||[]).length} ${this.pl((x.goals||[]).length,'цель','цели','целей')}</div></div><span class="pill ${x.avg!=null&&x.avg>=(+sp.threshold||85)?'c':'p'}">${x.avg!=null?x.avg+'%':'—'}</span></div>
+    ${(x.goals||[]).map(g=>`<div class="small" style="margin-top:6px"><span class="dot" style="display:inline-block;background:${g.color};margin-right:6px"></span>${esc(g.title)}</div>`).join('')}
+    ${F.won||F.lesson?`<div class="quote small" style="margin-top:10px">${F.won?esc(F.won):''}${F.lesson?'<br>Урок: '+esc(F.lesson):''}</div>`:''}
+    <button class="btn sm gh" style="margin-top:10px" onclick="if(confirm('Удалить из истории?')){APP.S.archive.splice(${i},1);APP.save();APP.close();APP.render()}">Удалить</button></div>`}).join('')}`)},
 ask(label,cur,cb,type){const t=type||'text';this._askCb=cb;
   this.open(`<div class="row"><div class="h2 sp" style="font-size:17px">${esc(label)}</div><button class="btn sm gh" onclick="APP.close()">Закрыть</button></div>
   <div class="f">${t==='textarea'?`<textarea id="askV" style="min-height:120px">${esc(cur||'')}</textarea>`:`<input id="askV" type="${t}" value="${esc(cur==null?'':cur)}" ${t==='number'?'inputmode="numeric"':''}>`}</div>
@@ -1290,6 +1356,7 @@ async auth(mode){
   try{
     if(mode==='reset'){if(p.length<8)return this.msg('Пароль не короче 8 символов');const{error}=await this.sb.auth.updateUser({password:p});if(error)throw error;this._am='in';this._amsg='';this.toast('Пароль обновлён');const{data}=await this.sb.auth.getSession();this.user=data.session&&data.session.user;if(this.user)this.pull(true);return this.render()}
     const e=$('aE').value.trim();if(!/.+@.+\..+/.test(e))return this.msg('Проверь почту');
+    if(mode==='link'){const{error}=await this.sb.auth.signInWithOtp({email:e,options:{emailRedirectTo:location.origin+location.pathname}});if(error)throw error;return this.msg('Письмо отправлено. Открой ссылку из него на этом устройстве.')}
     if(mode==='up'){if(p.length<8)return this.msg('Пароль не короче 8 символов');const n=($('aN')||{}).value||'';if(n)this.S.profile.name=n.trim();this.save();
       const{data,error}=await this.sb.auth.signUp({email:e,password:p,options:{data:{name:n.trim()},emailRedirectTo:location.origin+location.pathname}});if(error)throw error;
       if(!data.session)this.msg('Готово. Подтверди почту по ссылке из письма и войди.')}
