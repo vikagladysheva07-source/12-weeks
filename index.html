@@ -10,6 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="12 недель">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/svg+xml" href="shark.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -399,6 +400,7 @@ textarea{min-height:64px}
 .chk.on,.mgc.on{animation:chkpop .28s cubic-bezier(.2,.8,.2,1)}
 .mgc{transition:background .15s,transform .12s}
 @media(min-width:1024px){.wrap .h1{display:none}.wl{margin-top:12vh}}
+.sn-mark svg,.wl-mark svg{width:100%;height:100%;display:block}
 /* ===== matte reset: премиальный плоский стиль, без стекла и свечений ===== */
 :root{--bg:#0A0A0F;--s1:#131318;--s2:rgba(255,255,255,.04);--s3:rgba(255,255,255,.07);--tx:#FFFFFF;--mut:#8F8FA3;--dim:#56566A;--line:rgba(255,255,255,.07);--line2:rgba(255,255,255,.12);--glow:none;--glowc:none}
 body{background:radial-gradient(900px 480px at 50% -25%,rgba(124,79,212,.16),transparent 60%),var(--bg);background-attachment:fixed}
@@ -447,6 +449,7 @@ input:focus,textarea:focus,select:focus{box-shadow:0 0 0 3px rgba(124,92,230,.25
 /* Публичные значения Supabase — они и так видны в браузере. Данные защищены RLS: каждый видит только свою строку. */
 const CFG={url:'https://amcbxjwgiqphqikzcxfj.supabase.co',key:'sb_publishable_pDMx4w2cbHbuf7Y6cHiE2g_mFT8hlPB'};
 const KEY='tw12';
+const SHARK=`<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><g fill="#fff">    <path d="M94 52 C84 44 72 38 60 37 C46 36 34 40 26 48 C25 50 23 52 22 53 C32 61 42 66 54 66 C68 66 82 61 94 52 Z"/>    <path d="M42 40 C46 30 52 23 60 18 C60 28 61 34 64 39 Z"/>    <path d="M52 64 C55 71 60 77 66 81 C66 74 67 69 69 64 Z"/>    <path d="M27 52 L8 19 C19 27 28 37 34 47 Z"/>    <path d="M27 54 L8 87 C19 79 28 69 34 59 Z"/>    <path d="M24 49 L34 47 L34 59 L24 57 Z"/>  </g>  <g stroke="#7C5CE6" stroke-width="2" stroke-linecap="round" fill="none">    <path d="M70 45 C69 49 69 53 70 57"/><path d="M75 44 C74 49 74 53 75 58"/>  </g>  <circle cx="84" cy="48" r="2.4" fill="#7C5CE6"/>  <path d="M88 55 C84 57 80 57.5 76 57" stroke="#7C5CE6" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>`;
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pad=n=>String(n).padStart(2,'0');
@@ -713,7 +716,7 @@ render(){
   $('nav').innerHTML='<div class="in">'+tabs.map(([k,l,ic])=>`<button class="${this.tab===k?'on':''}" onclick="APP.go('${k}')">${ic}<span>${l}</span></button>`).join('')+'</div>';
   const P=this.prog();
   const ttl=this.sub==='programs'?'Программы':this.sub==='deals'?'Воронка':this.sub==='onboard'?'Старт':{home:'Сегодня',habits:'Прогресс',goals:(P?P.name:'Программа'),week:'Неделя',me:'Профиль'}[this.tab];
-  $('snav').innerHTML=`<div class="db-l"><span class="sn-mark"></span><b>${esc(ttl)}</b></div>
+  $('snav').innerHTML=`<div class="db-l"><span class="sn-mark">${SHARK}</span><b>${esc(ttl)}</b></div>
    <div class="db-nav">${tabs.map(([k,l,ic])=>`<button class="${this.tab===k&&!this.sub?'on':''}" onclick="APP.go('${k}')">${ic}<span>${l}</span></button>`).join('')}</div>
    <div class="db-r"><button class="ava" onclick="APP.go('me')" aria-label="Личный кабинет">${esc(this.initial())}</button></div>`;
   this.tr($('nav'));this.tr($('snav'));
@@ -738,7 +741,7 @@ ring(v,th,cap){const r=52,C=2*Math.PI*r,p=v==null?0:v/100,a=th/100*360-90,x=59+r
    <circle cx="${x}" cy="${y}" r="3.5" fill="var(--tx)"/></svg><div class="v"><div><b>${v??'—'}${v!=null?'%':''}</b><span>${cap||'ЦЕЛЬ '+th}</span></div></div></div>`},
 
 /* ================= ГЛАВНОЕ ================= */
-vWelcome(){return `<div class="wl"><span class="wl-mark"></span><div class="wl-t">12 недель</div><div class="wl-s">Система достижения целей за одну программу: цели, тактики, счёт недели и разбор. Без подписки.</div>
+vWelcome(){return `<div class="wl"><span class="wl-mark">${SHARK}</span><div class="wl-t">12 недель</div><div class="wl-s">Система достижения целей за одну программу: цели, тактики, счёт недели и разбор. Без подписки.</div>
   <div class="wl-f"><div>${I.goal}<span>До трёх целей и тактики под каждой</span></div><div>${I.habit}<span>Привычки и задачи в одной сетке</span></div><div>${I.week}<span>Счёт недели и воскресный разбор</span></div></div>
   <button class="btn pr w" style="margin-top:22px;padding:15px" onclick="APP.seen();APP.sub=null;APP.startWizard()">Начать бесплатно</button>
   <button class="btn gh w" style="margin-top:8px" onclick="APP.seen();APP.sub=null;APP.go('me')">У меня есть аккаунт</button>
