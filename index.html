@@ -703,6 +703,7 @@ render(){
   if(this.simple()&&(this.tab==='habits'||this.tab==='goals'))this.tab='home';
   const fresh=!this.user&&!this.S.goals.length&&!this.S.habits.length&&!(this.S.tasks||[]).length&&!(this.S.pref||{}).seen;
   if(fresh&&!this.sub)this.sub='welcome';
+  if(this.sub==='welcome'&&!fresh)this.sub=null;
   document.body.classList.toggle('wlc',this.sub==='welcome');
   if(this.sub==='welcome')body=this.vWelcome();
   else if(this.sub==='onboard')body=this.vOnboard();
