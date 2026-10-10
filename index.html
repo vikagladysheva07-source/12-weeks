@@ -82,7 +82,9 @@ select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,va
 .tk{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;margin:8px 0;box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 8px 22px rgba(0,0,0,.35)}
 .tk.done{border-color:rgba(0,196,212,.4);box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 0 0 1px rgba(0,196,212,.12),0 0 26px rgba(0,196,212,.14),0 8px 22px rgba(0,0,0,.35)}
 .tk .t{flex:1;min-width:0}
-.tk .t b{font-weight:500;display:block}
+.tk .t b{font-weight:700;font-size:13px;letter-spacing:.03em;text-transform:uppercase;display:block;line-height:1.25}
+.tk.done .t b{text-decoration:line-through;color:var(--mut)}
+@media(max-width:1023px){.tk .t b{font-size:12px;letter-spacing:.02em}.tk .step button{width:28px;height:38px}.tk .step input{width:38px;font-size:13px}.tk{gap:10px;padding:10px 10px 10px 12px}.tk .chk{width:40px;height:40px}}
 .tk .t .meta{font-family:var(--mono);font-size:11px;color:var(--mut);letter-spacing:.04em;margin-top:2px}
 .tk .t .hint{font-size:12px;color:var(--pb);margin-top:4px}
 .chk{width:36px;height:36px;border-radius:12px;border:1px solid var(--line2);display:grid;place-items:center;flex:none;background:rgba(0,0,0,.25);box-shadow:inset 0 2px 6px rgba(0,0,0,.4),inset 0 -1px 0 rgba(255,255,255,.06);transition:.2s}
@@ -210,17 +212,19 @@ details>summary::before{content:"▸ ";color:var(--pb)}details[open]>summary::be
 .mg{display:grid;grid-template-columns:124px repeat(var(--n),34px) 110px;gap:8px 6px;align-items:center;width:max-content;min-width:100%}
 .mgh{font-family:var(--mono);font-size:11px;color:var(--dim);text-align:center;height:22px;line-height:22px;border-radius:8px}
 .mgh.td{color:#fff;background:rgba(155,111,232,.28)}
-.mgn{font-size:13.5px;font-weight:600;line-height:1.15;color:var(--tx);padding-right:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:7px;position:sticky;left:-14px;z-index:2;background:linear-gradient(90deg,rgba(16,13,27,.97) 80%,rgba(16,13,27,0));padding-left:14px;margin-left:-14px;height:34px}
+.mgn{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;line-height:1.2;color:var(--tx);padding-right:8px;white-space:normal;overflow:hidden;max-height:34px;display:flex;align-items:center;gap:7px;position:sticky;left:-14px;z-index:2;background:linear-gradient(90deg,rgba(16,13,27,.97) 80%,rgba(16,13,27,0));padding-left:14px;margin-left:-14px;height:34px}
 .mgn .dot{width:7px;height:7px;flex:0 0 auto}
-.mgc{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.08);padding:0;transition:transform .12s,background .15s}
+.mgn em{font-style:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mgc{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:#03181C;background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.08);padding:0;transition:transform .12s,background .15s}
 .mgc:not(:disabled):active{transform:scale(.88)}
+.mgc svg{width:14px;height:14px}
 .mgc.on{background:radial-gradient(circle at 35% 30%,#8ff3ff,var(--c) 60%);box-shadow:0 0 12px rgba(0,196,212,.55),inset 0 0 0 1.5px rgba(255,255,255,.25)}
 .mgc.fz{background:transparent;box-shadow:inset 0 0 0 1.5px rgba(94,224,238,.5);border:0}
 .mgc.x{opacity:.22}
 .mgc.td{box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.08),0 0 0 2px var(--pb)}
 .mgc.td.on{box-shadow:0 0 12px rgba(0,196,212,.55),0 0 0 2px var(--pb)}
 .mgc:disabled{cursor:default}
-.mgs{font-family:var(--mono);font-size:11px;color:var(--mut);padding-left:10px;white-space:nowrap}.mgs b{color:var(--tx)}.mgs i{font-style:normal;color:var(--dim)}
+.mgs{font-family:var(--mono);font-size:11px;color:var(--mut);padding-left:10px;white-space:nowrap;display:flex;align-items:center;gap:9px}.mgs b{color:var(--tx)}.mgs span{display:inline-flex;align-items:center;gap:2px}.mgs .fl{color:var(--pb)}.mgs .st{color:#F5DC6A}
 .drow{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-top:10px}
 .dr{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;border-radius:12px}
 .dr b{font-family:var(--mono);font-size:10px;font-weight:500;color:var(--mut)}
@@ -228,41 +232,72 @@ details>summary::before{content:"▸ ";color:var(--pb)}details[open]>summary::be
 .dr.td{background:rgba(155,111,232,.12)}.dr.td span{color:var(--tx)}
 .dash{display:flex;flex-direction:column}
 .dtop{order:1}.dmain{order:2}.dbot{order:3}
+
 .snav{display:none}
+.tgrid2{display:block}
+.agrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+.at{display:flex;align-items:center;gap:10px;padding:12px;border-radius:14px;text-align:left;background:linear-gradient(160deg,rgba(255,255,255,.06),rgba(255,255,255,.01)),rgba(0,0,0,.22);border:1px solid var(--line);box-shadow:inset 0 1px 0 rgba(255,255,255,.1)}
+.at .ai{width:30px;height:30px;border-radius:9px;flex:none;display:grid;place-items:center;background:rgba(255,255,255,.06);color:var(--cb)}
+.at .ai svg{width:16px;height:16px}
+.at b{display:block;font-size:12.5px;font-weight:700;line-height:1.15}
+.at span{font-family:var(--mono);font-size:9.5px;color:var(--mut);letter-spacing:.04em}
+.at.has{border-color:rgba(196,164,255,.45)}.at.has .ai{color:#fff;background:linear-gradient(180deg,rgba(155,111,232,.6),rgba(91,47,190,.5))}
+.gcard .gt{font-size:17px;font-weight:800;letter-spacing:-.2px}
+.gcard .gst{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;padding:4px 9px;border-radius:8px;display:inline-block;margin-top:8px;background:rgba(155,111,232,.18);color:var(--pb);border:1px solid rgba(196,164,255,.35)}
+.gcard .gst.ok{background:rgba(0,196,212,.14);color:var(--cb);border-color:rgba(94,224,238,.4)}
+.gcard .gmeta{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-top:10px}
+.gcard .gbar{height:8px;border-radius:8px;background:rgba(0,0,0,.4);margin-top:10px;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,.6)}
+.gcard .gbar i{display:block;height:100%;border-radius:8px;background:linear-gradient(90deg,var(--cd),var(--c),var(--cb));box-shadow:0 0 12px rgba(0,196,212,.7)}
+.hbig{font-size:22px;font-weight:900;letter-spacing:-.5px;margin-top:2px}.hbig span{font-size:13px;font-weight:500;color:var(--mut)}
+.pline{height:3px;border-radius:3px;background:rgba(255,255,255,.07);margin-top:12px;overflow:hidden}.pline i{display:block;height:100%;background:linear-gradient(90deg,var(--c),var(--cb));box-shadow:0 0 8px rgba(0,196,212,.8);border-radius:3px}
+.hseg{margin:12px 0 0;gap:10px}.hseg .pseg{margin:0}
+.trow2{display:flex;align-items:center;gap:12px;margin-top:10px}
+.trow2 .lbl{font-size:9.5px;flex:none;writing-mode:vertical-rl;transform:rotate(180deg);height:64px;text-align:center}
+.tchk{width:18px;height:18px;border-radius:6px;border:1px solid var(--line2);flex:none;display:grid;place-items:center;background:rgba(0,0,0,.3);color:#03181C;margin-top:1px}
+.tchk.on{background:linear-gradient(180deg,#7FEBF5,#00B5C4);border-color:rgba(255,255,255,.4);box-shadow:0 0 8px rgba(0,196,212,.6)}
+.tchk svg{width:11px;height:11px}
+.tfoot{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9.5px;color:var(--mut);margin-top:10px;padding-top:8px;border-top:1px solid var(--line)}
+.tfoot b{color:var(--cb)}
+.prow{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:14px}
+.prow .pill{padding:7px 12px;font-size:10px}
+.prow .pill svg{width:11px;height:11px;vertical-align:-1px;margin-right:4px}
+.xl{display:flex;justify-content:space-between;margin-top:6px}.xl span{font-family:var(--mono);font-size:9.5px;color:var(--dim);letter-spacing:.06em}
+.mgh.first{text-align:left;padding-left:14px;font-size:9.5px;letter-spacing:.14em}
 @media(min-width:1024px){
-  .wrap{max-width:none;margin:0;padding:28px 36px 48px 300px}
+  .wrap{max-width:1180px;margin:0 auto;padding:92px 28px 60px}
   .nav{display:none}
   .top{display:none}
-  .dhead .h1{font-size:40px}
-  .dash{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:0 22px;align-items:start;margin-top:4px}
-  .dtop{grid-column:2;grid-row:1}
-  .dmain{grid-column:1;grid-row:1/span 2}
-  .dbot{grid-column:2;grid-row:2}
-  .dtop .card:first-child,.dmain>.card:first-child{margin-top:12px}
-  .hero{grid-template-columns:auto 1fr}
-  .snav{display:flex;flex-direction:column;position:fixed;left:24px;top:24px;bottom:24px;width:236px;z-index:40;padding:18px 14px;border-radius:26px;
-    background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.02) 50%),rgba(14,12,24,.72);border:1px solid var(--line);backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 18px 44px rgba(0,0,0,.55)}
-  .sn-brand{display:flex;align-items:center;gap:10px;padding:6px 8px 18px}
-  .sn-brand b{display:block;font-weight:900;text-transform:uppercase;letter-spacing:-.3px;font-size:15px;line-height:1.1}
-  .sn-brand span{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut)}
-  .sn-mark{width:30px;height:30px;border-radius:9px;flex:none;background:linear-gradient(160deg,#D9C6FF,#9B6FE8 55%,#5B2FBE);box-shadow:var(--glow),inset 0 1px 0 rgba(255,255,255,.5)}
-  .sn-items{display:flex;flex-direction:column;gap:4px;flex:1}
-  .sn-items button{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:14px;color:var(--mut);font-weight:600;font-size:14px;text-align:left;transition:.2s}
-  .sn-items button svg{width:20px;height:20px;flex:none}
-  .sn-items button:hover{background:rgba(255,255,255,.04);color:var(--tx)}
-  .sn-items button.on{color:#fff;background:linear-gradient(180deg,rgba(155,111,232,.42),rgba(91,47,190,.36));box-shadow:var(--glow),inset 0 1px 0 rgba(255,255,255,.3)}
-  .sn-items button.on svg{filter:drop-shadow(0 0 6px rgba(196,164,255,.9))}
-  .sn-foot{display:flex;align-items:center;gap:10px;padding:12px 8px 4px;border-top:1px solid var(--line);cursor:pointer}
-  .sn-foot .ava{width:34px;height:34px;font-size:13px}
-  .sn-foot b{display:block;font-size:13.5px;line-height:1.15}
-  .sn-foot .cloud{font-size:9px}
+  .dhead>.h1,.dhead>.lbl{display:none}
+  .dash{display:block}
+  .snav{display:flex;align-items:center;justify-content:space-between;gap:16px;position:fixed;top:14px;left:50%;transform:translateX(-50%);width:min(1124px,calc(100% - 56px));z-index:40;padding:10px 12px 10px 16px;border-radius:22px;
+    background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.02) 50%),rgba(14,12,24,.8);border:1px solid var(--line);backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 18px 44px rgba(0,0,0,.5)}
+  .db-l{display:flex;align-items:center;gap:10px;min-width:220px}
+  .db-l b{font-weight:900;text-transform:uppercase;letter-spacing:-.3px;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px}
+  .sn-mark{width:28px;height:28px;border-radius:9px;flex:none;background:linear-gradient(160deg,#D9C6FF,#9B6FE8 55%,#5B2FBE);box-shadow:var(--glow),inset 0 1px 0 rgba(255,255,255,.5)}
+  .db-nav{display:flex;gap:4px;padding:5px;border-radius:18px;background:rgba(0,0,0,.32);box-shadow:inset 0 2px 6px rgba(0,0,0,.4)}
+  .db-nav button{display:flex;align-items:center;gap:8px;padding:9px 16px;border-radius:14px;color:var(--mut);font-weight:700;font-size:13.5px;transition:.2s;white-space:nowrap}
+  .db-nav button svg{width:18px;height:18px}
+  .db-nav button:hover{color:var(--tx)}
+  .db-nav button.on{color:#fff;background:linear-gradient(180deg,rgba(155,111,232,.5),rgba(91,47,190,.45));box-shadow:var(--glow),inset 0 1px 0 rgba(255,255,255,.3)}
+  .db-nav button.on svg{filter:drop-shadow(0 0 6px rgba(196,164,255,.9))}
+  .db-r{min-width:220px;display:flex;justify-content:flex-end}
+  .daynav{top:70px}
+  .tgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.tgrid .tk{margin:0}
+  .tgrid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:stretch}.tgrid2>.card{margin:12px 0 0}
+  .stat.s4{grid-template-columns:repeat(4,1fr)}
+  .tcols{grid-template-columns:repeat(7,minmax(0,1fr));overflow:visible;margin:14px 0 0;padding:0}
+  .agrid{grid-template-columns:repeat(5,1fr)}
+  .hpg{grid-template-columns:repeat(4,1fr)}
+  .card.today{padding:34px 16px 28px}
+  .bigring{width:200px;height:200px}.bigring svg{width:200px;height:200px}.bigring .v b{font-size:50px}
+  .trow2 .lbl{height:84px}
+  .mg{grid-template-columns:150px repeat(var(--n),34px) 120px}
   .modal{align-items:center}.sheet{border-radius:22px;max-width:640px}
   .toast{bottom:32px}
   .fab{display:none}
+  .hpact{bottom:12px}
 }
-@media(min-width:1200px){.dash{grid-template-columns:minmax(0,1fr) 380px}}
-@media(min-width:1400px){.wrap{padding-left:320px;max-width:1500px}.dash{grid-template-columns:minmax(0,1fr) 420px}}
 .srow{display:flex;align-items:center;gap:10px;width:100%;padding:14px 2px;border-bottom:1px solid var(--line);text-align:left;font-size:15px;color:var(--tx)}
 .srow:last-child{border-bottom:0}
 .srow svg{color:var(--dim);flex:none}
@@ -321,17 +356,16 @@ details>summary::before{content:"▸ ";color:var(--pb)}details[open]>summary::be
 .medal.m0{background:linear-gradient(180deg,#F5DC6A,#C9A227);color:#2a1e00}.medal.m1{background:linear-gradient(180deg,#E8DFFF,#C4A4FF);color:#1b0f33}.medal.m2{background:linear-gradient(180deg,#7FEBF5,#00B5C4);color:#03181C}
 @media(min-width:1024px){.tcols{margin:0;padding:0 0 8px;grid-template-columns:repeat(7,minmax(150px,1fr))}}
 .card.today{text-align:center;padding:26px 16px 22px;margin-top:14px}
-.bigring{position:relative;width:160px;height:160px;margin:0 auto}
+.bigring{position:relative;width:180px;height:180px;margin:0 auto}.bigring svg{width:180px;height:180px}
 .bigring .v{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
-.bigring .v b{display:block;font-size:40px;font-weight:900;letter-spacing:-1.5px;line-height:1}
+.bigring .v b{display:block;font-size:44px;font-weight:900;letter-spacing:-1.5px;line-height:1}
 .bigring .v span{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--mut)}
-.tdate{margin-top:16px;font-weight:700;font-size:15px}
+.tdate{margin-top:18px;font-weight:800;font-size:14px;letter-spacing:.08em;text-transform:uppercase}
 .tsum{color:var(--mut);font-size:13px;margin-top:3px}
-.stk{font-family:var(--mono);font-size:12px;color:var(--cb);flex:none;min-width:22px;text-align:right}
+.stk{font-family:var(--mono);font-size:12px;color:var(--pb);flex:none;display:inline-flex;align-items:center;gap:3px}.stk svg{color:var(--pb)}
 .tk .bar{display:none}
 .tk .t .meta{font-size:10.5px}
 .cirow{cursor:pointer;color:var(--mut)}.cirow svg{color:var(--dim)}
-.tgrid{display:block}
 
 .mgn{text-align:left;cursor:pointer}
 </style>
@@ -360,6 +394,8 @@ const MONF=['Январь','Февраль','Март','Апрель','Май','
 const WD=['вс','пн','вт','ср','чт','пт','сб'];
 const WDF=['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
 const fd=s=>{const d=pd(s);return d.getDate()+' '+MON[d.getMonth()]};
+const AREAS=[['health','Здоровье и тело','<path d="M6 7v10M18 7v10M3 9v6M21 9v6M6 12h12"/>'],['career','Карьера и рост','<path d="M3 21h18M5 21V9l7-5 7 5v12M9 21v-6h6v6"/>'],['money','Финансы','<circle cx="12" cy="12" r="8"/><path d="M12 7v10M9.5 9.5h4a1.5 1.5 0 010 3h-3a1.5 1.5 0 000 3h4"/>'],['rel','Отношения','<circle cx="8" cy="9" r="3"/><circle cx="16" cy="9" r="3"/><path d="M2 20c0-3 3-5 6-5s6 2 6 5M10 20c0-3 3-5 6-5s6 2 6 5"/>'],['love','Любовь','<path d="M12 21s-7-4.5-9-9a5 5 0 019-3 5 5 0 019 3c-2 4.5-9 9-9 9z"/>'],['spirit','Духовность','<circle cx="12" cy="13" r="4"/><path d="M12 3v3M4 13H1M23 13h-3M5.6 6.6l2.1 2.1M18.4 6.6l-2.1 2.1M3 21h18"/>'],['home','Дом и быт','<path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6h-6v6H4a1 1 0 01-1-1z"/>'],['travel','Путешествия','<path d="M2 16l20-6-6 6 2 6-4-3-4 3z"/>'],['fun','Хобби и отдых','<path d="M4 20h16M6 20V9a6 6 0 0112 0v11"/><circle cx="12" cy="9" r="2"/>'],['comm','Сообщество','<circle cx="12" cy="7" r="3"/><circle cx="5" cy="11" r="2"/><circle cx="19" cy="11" r="2"/><path d="M7 21c0-3 2-5 5-5s5 2 5 5M1 19c0-2 2-4 4-4M23 19c0-2-2-4-4-4"/>']];
+const aIco=k=>{const a=AREAS.find(x=>x[0]===k);return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${a?a[2]:''}</svg>`};
 const COLORS=['#9B6FE8','#00C4D4','#C4A4FF','#5EE0EE','#7C4FD4'];
 const TYPES={check:'Галочка: N дней в неделю',num:'Число каждый день',count:'N раз в неделю',ms:'Веха с дедлайном'};
 const STAGES=['Касание','Созвон','Оффер','Договор','Оплачено'];
@@ -367,6 +403,9 @@ const sv=(p,w=18,sw=2)=>`<svg width="${w}" height="${w}" viewBox="0 0 24 24" fil
 const I={
   l:sv('<path d="M15 18l-6-6 6-6"/>'),r:sv('<path d="M9 6l6 6-6 6"/>'),ok:sv('<path d="M5 12l5 5L20 7"/>',18,3),ok2:sv('<path d="M5 12l5 5L20 7"/>',13,3.4),
   ed:sv('<path d="M12 20h9M16.5 3.5a2.1 2.1 0 113 3L7 19l-4 1 1-4z"/>',16),plus:sv('<path d="M12 5v14M5 12h14"/>',16,2.4),
+  flame:sv('<path d="M12 22c-4 0-7-3-7-7 0-3 2-5 3-7 0 2 1 3 2 3 0-3 1-6 4-8 0 3 1 4 3 6s2 4 2 6c0 4-3 7-7 7z"/>',13,1.9),
+  star:sv('<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',12,1.9),
+  snow:sv('<path d="M12 2v20M2 12h20M5 5l14 14M19 5L5 19"/>',12,1.9),
   home:sv('<path d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1h-5v-6h-6v6H4a1 1 0 01-1-1z"/>',22),
   habit:sv('<circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/>',22),
   goal:sv('<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2"/>',22),
@@ -434,7 +473,7 @@ const MINI=[
  {name:'Свой челлендж',days:7,color:'#9B6FE8',tactics:[]}
 ];
 const MON_EN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const I18N_BASE={'пн':'Mon','вт':'Tue','ср':'Wed','чт':'Thu','пт':'Fri','сб':'Sat','вс':'Sun','понедельник':'Monday','вторник':'Tuesday','среда':'Wednesday','четверг':'Thursday','пятница':'Friday','суббота':'Saturday','воскресенье':'Sunday',
+const I18N_BASE={'Сегодня':'Today','Профиль':'Profile','Программы':'Programs','Воронка':'Pipeline','Старт':'Start','Привычки и тактики':'Habits & tactics','привычка':'habit','привычки':'habits','привычек':'habits','сегодня':'today','заморозка':'freeze','заморозки':'freezes','заморозок':'freezes','доступно':'available','Привычка':'Habit','Статы':'Stats','Тренд':'Trend','Неделя':'Week','Эта неделя':'This week','Общий прогресс':'Overall progress','Состояние':'Mindset','Задачи':'Tasks','Выполнено':'Done','Осталось':'Left','Целей достигнуто':'Goals achieved','Сферы жизни':'Areas of life','Приоритеты':'Priorities','Достигнута':'Achieved','В работе':'In progress','без сферы':'no area','Общая стабильность':'Overall consistency','Сфера жизни':'Area of life','Статус':'Status','не выбрана':'not set','в работе':'in progress','достигнута':'achieved','Здоровье и тело':'Health & body','Карьера и рост':'Career & growth','Финансы':'Finances','Отношения':'Relationships','Любовь':'Love','Духовность':'Spirituality','Дом и быт':'Home','Путешествия':'Travel','Хобби и отдых':'Hobbies & rest','Сообщество':'Community','цель':'goal','цели':'goals','целей':'goals','достигнуты':'achieved','достигнуто':'achieved','пн':'Mon','вт':'Tue','ср':'Wed','чт':'Thu','пт':'Fri','сб':'Sat','вс':'Sun','понедельник':'Monday','вторник':'Tuesday','среда':'Wednesday','четверг':'Thursday','пятница':'Friday','суббота':'Saturday','воскресенье':'Sunday',
  'Январь':'January','Февраль':'February','Март':'March','Апрель':'April','Май':'May','Июнь':'June','Июль':'July','Август':'August','Сентябрь':'September','Октябрь':'October','Ноябрь':'November','Декабрь':'December',
  'янв':'Jan','фев':'Feb','мар':'Mar','апр':'Apr','мая':'May','июн':'Jun','июл':'Jul','авг':'Aug','сен':'Sep','окт':'Oct','ноя':'Nov','дек':'Dec',
  'Главное':'Today','Привычки':'Habits','Прогресс':'Progress','Задачи':'Tasks','Инсайты':'Insights','По дням':'By day','По неделям':'By week','Тренд · 30 дней':'Trend · 30 days','Стабильность':'Consistency','Всё':'All','Тактики':'Tactics','Общий прогресс':'Overall progress','Состояние · из вечернего чек-ина':'Mindset · from evening check-in','энергия':'energy','сон':'sleep','день':'day','Скопировать вчерашние':'Copy yesterday’s','Рейтинг':'Leaderboard','12 недель · процент выполнения':'12 weeks · completion %','ср. · лучшая':'avg · best','Добавь привычку — появятся недели.':'Add a habit — weeks will appear.','день подряд':'day streak','Отменить':'Undo','Отменено':'Undone','Отмечено':'Done','Сделано':'Done','показать':'show','скрыть':'hide','Карточка в сторис':'Story card','Карточка сохранена':'Card saved',
@@ -602,10 +641,10 @@ render(){
   this._pop=null;
   $('nav').innerHTML='<div class="in">'+tabs.map(([k,l,ic])=>`<button class="${this.tab===k?'on':''}" onclick="APP.go('${k}')">${ic}<span>${l}</span></button>`).join('')+'</div>';
   const P=this.prog();
-  $('snav').innerHTML=`<div class="sn-brand"><span class="sn-mark"></span><div><b>${esc(this.S.sprint.title||'12 недель')}</b><span>${P?esc(P.origin.split(',')[0]):'система достижения целей'}</span></div></div>
-   <div class="sn-items">${tabs.map(([k,l,ic])=>`<button class="${this.tab===k&&!this.sub?'on':''}" onclick="APP.go('${k}')">${ic}<span>${l}</span></button>`).join('')}
-</div>
-   <div class="sn-foot" onclick="APP.go('me')"><span class="ava">${esc(this.initial())}</span><div class="sp"><b>${esc(this.S.profile.name||'Гость')}</b><span class="cloud ${this.cloud==='on'?'on':this.cloud==='err'?'err':''}"><i></i>${this.user?(this.cloud==='on'?'в облаке':this.cloud==='err'?'нет связи':'синхронизация'):'без аккаунта'}</span></div></div>`;
+  const ttl=this.sub==='programs'?'Программы':this.sub==='deals'?'Воронка':this.sub==='onboard'?'Старт':{home:'Сегодня',habits:'Прогресс',goals:(P?P.name:'Программа'),week:'Неделя',me:'Профиль'}[this.tab];
+  $('snav').innerHTML=`<div class="db-l"><span class="sn-mark"></span><b>${esc(ttl)}</b></div>
+   <div class="db-nav">${tabs.map(([k,l,ic])=>`<button class="${this.tab===k&&!this.sub?'on':''}" onclick="APP.go('${k}')">${ic}<span>${l}</span></button>`).join('')}</div>
+   <div class="db-r"><button class="ava" onclick="APP.go('me')" aria-label="Личный кабинет">${esc(this.initial())}</button></div>`;
   this.tr($('nav'));this.tr($('snav'));
 },
 initial(){const n=(this.S.profile.name||(this.user&&this.user.email)||'').trim();return n?n[0].toUpperCase():'·'},
@@ -615,11 +654,12 @@ pl(n,a,b,c){n=Math.abs(n)%100;const m=n%10;if(n>10&&n<20)return c;if(m>1&&m<5)re
 dleft(d){const n=diff(today(),d);return n<0?`просрочено на ${-n} дн.`:n===0?'сегодня':`через ${n} дн.`},
 miniRing(v,size,col){const r=15,C=2*Math.PI*r,p=v==null?0:v/100,c=col||(v!=null&&v>=85?'#5EE0EE':'#9B6FE8');
   return `<div style="position:relative;width:${size}px;height:${size}px;margin:0 auto"><svg width="${size}" height="${size}" viewBox="0 0 38 38"><circle cx="19" cy="19" r="${r}" stroke="rgba(0,0,0,.45)" stroke-width="4" fill="none"/>${v!=null?`<circle cx="19" cy="19" r="${r}" stroke="${c}" stroke-width="4" fill="none" stroke-linecap="round" stroke-dasharray="${(C*p).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 19 19)" style="filter:drop-shadow(0 0 5px ${c})"/>`:''}</svg><div style="position:absolute;inset:0;display:grid;place-items:center;font-family:var(--mono);font-size:${Math.round(size*.22)}px;font-weight:500">${v==null?'·':v+'%'}</div></div>`},
-ringBig(v){const r=66,C=2*Math.PI*r,p=v==null?0:v/100,ok=v!=null&&v>=85;
-  return `<div class="bigring"><svg width="160" height="160" viewBox="0 0 160 160"><defs><linearGradient id="bg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${ok?'#7FEBF5':'#C4A4FF'}"/><stop offset="1" stop-color="${ok?'#009BAB':'#5B2FBE'}"/></linearGradient></defs>
+ringBig(v,cap){const r=66,C=2*Math.PI*r,p=v==null?0:v/100,ok=v!=null&&v>=85;
+  return `<div class="bigring"><svg viewBox="0 0 160 160"><defs><linearGradient id="bg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${ok?'#7FEBF5':'#C4A4FF'}"/><stop offset="1" stop-color="${ok?'#009BAB':'#5B2FBE'}"/></linearGradient></defs>
    <circle cx="80" cy="80" r="${r}" stroke="rgba(0,0,0,.5)" stroke-width="11" fill="none"/><circle cx="80" cy="80" r="${r}" stroke="rgba(255,255,255,.05)" stroke-width="11" fill="none"/>
    <circle cx="80" cy="80" r="${r}" stroke="url(#bg1)" stroke-width="11" fill="none" stroke-linecap="round" stroke-dasharray="${(C*p).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 80 80)" style="filter:drop-shadow(0 0 10px ${ok?'rgba(0,196,212,.8)':'rgba(155,111,232,.8)'});transition:stroke-dasharray .5s"/></svg>
-   <div class="v"><b>${v==null?'—':v+'%'}</b><span>ДЕНЬ</span></div></div>`},
+   <div class="v"><b>${v==null?'—':v+'%'}</b><span>${cap||'СЕГОДНЯ'}</span></div></div>`},
+ringTxt(p,txt,size){const r=15,C=2*Math.PI*r;return `<div style="position:relative;width:${size}px;height:${size}px;flex:none"><svg width="${size}" height="${size}" viewBox="0 0 38 38"><circle cx="19" cy="19" r="${r}" stroke="rgba(0,0,0,.45)" stroke-width="3.5" fill="none"/><circle cx="19" cy="19" r="${r}" stroke="#5EE0EE" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-dasharray="${(C*p).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 19 19)" style="filter:drop-shadow(0 0 5px #5EE0EE)"/></svg><div style="position:absolute;inset:0;display:grid;place-items:center;font-family:var(--mono);font-size:${Math.round(size*.2)}px;font-weight:500">${txt}</div></div>`},
 ring(v,th,cap){const r=52,C=2*Math.PI*r,p=v==null?0:v/100,a=th/100*360-90,x=59+r*Math.cos(a*Math.PI/180),y=59+r*Math.sin(a*Math.PI/180);
   const col=v!=null&&v>=th?'url(#rc)':'url(#rg)';
   return `<div class="ring"><svg width="118" height="118"><defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#C4A4FF"/><stop offset="1" stop-color="#7C4FD4"/></linearGradient><linearGradient id="rc" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7FEBF5"/><stop offset="1" stop-color="#009BAB"/></linearGradient></defs><circle cx="59" cy="59" r="${r}" stroke="rgba(0,0,0,.45)" stroke-width="9" fill="none"/><circle cx="59" cy="59" r="${r}" stroke="rgba(255,255,255,.05)" stroke-width="9" fill="none"/>
@@ -641,7 +681,7 @@ vHome(){
   let h=`<div class="h1">${this.day===td?'Сегодня':this.day===add(td,-1)?'Вчера':this.day===add(td,1)?'Завтра':WDF[dd.getDay()][0].toUpperCase()+WDF[dd.getDay()].slice(1)}</div>__S1__
   <div class="card today">${this.ringBig(pct)}<div class="tdate">${WDF[dd.getDay()][0].toUpperCase()+WDF[dd.getDay()].slice(1)}, ${fd(this.day)}</div>
     <div class="tsum">${dp.n?`${dp.done} / ${dp.n} ${this.pl(dp.n,'дело','дела','дел')} сделано`:'На этот день ничего не запланировано'}</div>
-    ${inS?`<button class="pill p" style="margin-top:12px" onclick="APP.wk=${w};APP.go('week')">${esc(this.prog()?this.prog().name:(this.S.sprint.title||'Программа'))} · ${prog}</button>`:''}</div>`;
+    <div class="prow">${inS?`<button class="pill p" onclick="APP.wk=${w};APP.go('week')">${esc(this.prog()?this.prog().name:(this.S.sprint.title||'Программа'))} · ${prog}</button>`:''}${this.mode!=='strict'?`<button class="pill c" onclick="APP.dayMenu()">${I.snow}${this.frzLeft(this.day)} ${this.pl(this.frzLeft(this.day),'заморозка','заморозки','заморозок')} доступно</button>`:''}</div></div>`;
   if(inS&&this.mode==='strict'&&this.day===td&&this.dayFull(add(td,-1))===false&&this.dayIndex(td)>1)h+=`<div class="card small" style="border-color:rgba(196,164,255,.4)"><b>Вчера день не закрыт.</b> По правилам программы счётчик начался заново: сегодня день 1. Сбросов за программу: ${this.strictResets()}.</div>`;
   if(!S.goals.length)h+=`<div class="card"><div class="lbl">Начало</div><div class="h2" style="margin-top:6px">Выбери программу</div>
     <div class="small mut" style="margin-top:6px">12 недель, Winter Arc, 75 Hard, Теория шести месяцев — любая идёт на одном движке: цели, тактики, счёт недели и разбор. Привычки и задачи работают уже сейчас, без программы.</div>
@@ -663,10 +703,8 @@ vHome(){
       h+=this.rowsDone(gt.map(t=>({k:'t',o:t})),w,g.id)});
     if(hs.length){h+=`<div class="gh3"><span class="dot" style="background:var(--cb)"></span><span class="lbl" style="color:var(--tx)">Привычки</span><span class="sp"></span>${this.simple()?'':`<button class="pill" onclick="APP.go('habits')">все</button>`}</div>`;hs.forEach(x=>h+=this.hRow(x))}
   }else{
-    const items=[...ts.map(t=>({k:'t',o:t,tod:t.tod||''})),...hs.map(x=>({k:'h',o:x,tod:x.tod||''}))];
-    ['m','d','e',''].forEach(k=>{const it=items.filter(i=>i.tod===k);if(!it.length)return;
-      h+=`<div class="todh"><span class="lbl">${this.TOD[k]}</span><span class="ln"></span></div>`;
-      h+=this.rowsDone(it,w,k)});
+    const ord={m:0,d:1,e:2,'':3};const items=[...ts.map(t=>({k:'t',o:t,tod:t.tod||''})),...hs.map(x=>({k:'h',o:x,tod:x.tod||''}))].sort((a,b)=>ord[a.tod]-ord[b.tod]);
+    if(items.length){h+=`<div class="todh"><span class="lbl">Привычки и тактики</span><span class="ln"></span></div>`;h+=this.rowsDone(items,w,'all')}
   }
   const ci=(S.checkin||{})[this.day];h+='__S3__';
   if(this.day<=td)h+=`<button class="tk cirow" style="margin-top:18px;width:100%" onclick="APP.ciOpen('${this.day}')"><div class="t"><b>${ci?'Чек-ин сделан':'Закрыть день'}</b><div class="meta">${ci?`энергия ${ci.energy||'—'}/5 · сон ${ci.sleep||'—'} ч`:'60 секунд · энергия, сон, победа, главное на завтра'}</div></div>${ci?`<span class="chk on" style="width:34px;height:34px;border-radius:10px">${I.ok2}</span>`:I.r}</button>`;
@@ -674,8 +712,9 @@ vHome(){
 },
 setGroup(g){this.S.pref=this.S.pref||{};this.S.pref.group=g;this.save();this.render()},
 hRow(x){const d=this.day,on=this.hOn(x,d),[f,s,fr]=this.hFns(x),st=this.streak(f,s,fr),sk=this.skipped(x.id,d)&&!this.frozen(d),g=((this.S.pref||{}).group||'tod')==='tod';
-  return `<div class="tk ${on?'done':''} ${sk?'skip':''} ${this._pop===x.id?'pop':''}" data-lp="h:${x.id}"><div class="t" onclick="APP.editH('${x.id}')"><b>${g?'<span class="dot" style="display:inline-block;background:var(--cb);margin-right:8px;vertical-align:middle"></span>':''}${esc(x.title)}</b><div class="meta">${sk?'пропуск на этот день':'привычка'}${x.when?' · '+esc(x.when):''}</div></div>
-    ${st?`<span class="stk">${st}</span>`:''}<button class="chk ${on?'on':''}" onclick="APP.hToggle('${x.id}','${d}')">${on?I.ok:''}</button></div>`},
+  const meta=(sk?'пропуск на этот день':'')+(x.when?(sk?' · ':'')+esc(x.when):'');
+  return `<div class="tk ${on?'done':''} ${sk?'skip':''} ${this._pop===x.id?'pop':''}" data-lp="h:${x.id}"><button class="chk ${on?'on':''}" onclick="APP.hToggle('${x.id}','${d}')">${on?I.ok:''}</button><div class="t" onclick="APP.editH('${x.id}')"><b>${g?'<span class="dot" style="display:inline-block;background:var(--cb);margin-right:8px;vertical-align:middle"></span>':''}${esc(x.title)}</b>${meta?`<div class="meta">${meta}</div>`:''}</div>
+    ${st?`<span class="stk">${I.flame}${st}</span>`:''}</div>`},
 dayMenu(){const d=this.day,fz=this.frozen(d);
   this.open(`<div class="row"><div class="h2 sp">${fd(d)}</div><button class="btn sm gh" onclick="APP.close()">Закрыть</button></div><div class="menu" style="margin-top:8px">
    <button onclick="APP.close();APP.freeze('${d}',${!fz})">${I.habit}<span>${fz?'Разморозить день':'Заморозить день'}<br><span class="small mut">Болезнь, перелёт, форс-мажор: серии не рвутся, счёт недели считается без этого дня. Осталось в этом месяце: ${this.frzLeft(d)} из ${this.frzLimit()}</span></span></button>
@@ -718,8 +757,9 @@ editFocus(w){const ws=this.S.weeks[w]||{};
 /* ---------- задачи дня (разовые дела) ---------- */
 tasksFor(d){const td=today();return (this.S.tasks||[]).filter(x=>x.date===d||(!x.done&&x.date<d&&d===td)).sort((a,b)=>(a.done?1:0)-(b.done?1:0)||(a.t||0)-(b.t||0))},
 tasksBlock(tk){const d=this.day;
-  let h=`<div class="todh"><span class="lbl">Задачи</span><span class="ln"></span></div>`;
-  tk.forEach(x=>{const over=x.date<d;h+=`<div class="tk ${x.done?'done':''} ${this._pop===x.id?'pop':''}" data-lp="k:${x.id}"><div class="t" onclick="APP.taskEdit('${x.id}')"><b>${esc(x.title)}</b>${over?`<div class="meta">с ${fd(x.date)}</div>`:''}</div><button class="chk ${x.done?'on':''}" onclick="APP.taskToggle('${x.id}')">${x.done?I.ok:''}</button></div>`});
+  let h=`<div class="todh"><span class="lbl">Задачи</span><span class="ln"></span></div><div class="tgrid">`;
+  tk.forEach(x=>{const over=x.date<d;h+=`<div class="tk ${x.done?'done':''} ${this._pop===x.id?'pop':''}" data-lp="k:${x.id}"><button class="chk ${x.done?'on':''}" onclick="APP.taskToggle('${x.id}')">${x.done?I.ok:''}</button><div class="t" onclick="APP.taskEdit('${x.id}')"><b>${esc(x.title)}</b>${over?`<div class="meta">с ${fd(x.date)}</div>`:''}</div></div>`});
+  h+='</div>';
   h+=`<form class="row" style="margin:6px 0 2px" onsubmit="event.preventDefault();APP.taskAdd(this.q.value,'${d}');this.q.value=''"><input name="q" placeholder="Новая задача на этот день" autocomplete="off" style="flex:1"><button class="ic" type="submit" aria-label="Добавить">${I.plus}</button></form>`;
   return h},
 taskAdd(title,d){title=(title||'').trim();if(!title)return;this.S.tasks=this.S.tasks||[];this.S.tasks.push({id:'k'+uid(),title,date:d||today(),done:'',t:Date.now()});this.save();this.render();this.buzz(8)},
@@ -808,26 +848,25 @@ reorder(kind,ids){const S=this.S;
 /* строки дня: несделанные сверху, сделанные свёрнуты */
 isDone(i){const d=this.day;if(i.k==='h')return this.hOn(i.o,d);const t=i.o,v=this.v(t,d);return t.type==='check'?v>0:t.type==='num'?v>=(+t.per||1):t.type==='count'?v>0:!!this.msDoneDate(t)},
 rowsDone(items,w,key){const tod=((this.S.pref||{}).group||'tod')==='tod';const open=items.filter(i=>!this.isDone(i)),done=items.filter(i=>this.isDone(i));
-  const r=i=>i.k==='t'?this.tRow(i.o,w,tod):this.hRow(i.o);let h=`<div class="tgrid">`+open.map(r).join('');
-  if(done.length){const show=this._showDone===key;h+=`<button class="donebar" onclick="APP._showDone=APP._showDone==='${key}'?null:'${key}';APP.render()">${I.ok2} Сделано ${done.length}<span class="sp"></span>${show?'скрыть':'показать'}</button>${show?done.map(r).join(''):''}`}
-  return h+'</div>'},
+  const r=i=>i.k==='t'?this.tRow(i.o,w,tod):this.hRow(i.o);return `<div class="tgrid">`+open.map(r).join('')+done.map(r).join('')+'</div>'},
 tRow(t,w,showGoal){
   const d=this.day,val=this.v(t,d),wv=this.wVal(t,w),wt=this.wTarget(t,w),done=wv>=wt,sk=this.skipped(t.id,d)&&!this.frozen(d);
-  let ctl='',meta='';
-  if(t.type==='check'){const[f_,s_,fr_]=this.tFns(t),stk=this.streak(f_,s_,fr_);ctl=`${stk?`<span class="stk">${stk}</span>`:''}<button class="chk ${val?'on':''}" onclick="APP.toggle('${t.id}','${d}')">${val?I.ok:''}</button>`;meta=`${wv}/${wt} дн. на неделе`}
-  else if(t.type==='num'){ctl=`<div class="step"><button onclick="APP.inc('${t.id}','${d}',-1)">−</button><input inputmode="numeric" value="${val||''}" placeholder="0" onchange="APP.setNum('${t.id}','${d}',this)"><button onclick="APP.inc('${t.id}','${d}',${+t.per||1})">+</button></div>`;
+  let left='',right='',meta='';
+  if(t.type==='check'){const[f_,s_,fr_]=this.tFns(t),stk=this.streak(f_,s_,fr_);left=`<button class="chk ${val?'on':''}" onclick="APP.toggle('${t.id}','${d}')">${val?I.ok:''}</button>`;right=stk?`<span class="stk">${I.flame}${stk}</span>`:'';meta=`${wv}/${wt} дн. на неделе`}
+  else if(t.type==='num'){const ok=val>=(+t.per||1);left=`<span class="chk ${ok?'on':''}">${ok?I.ok:''}</span>`;right=`<div class="step"><button onclick="APP.inc('${t.id}','${d}',-1)">−</button><input inputmode="numeric" value="${val||''}" placeholder="0" onchange="APP.setNum('${t.id}','${d}',this)"><button onclick="APP.inc('${t.id}','${d}',${+t.per||1})">+</button></div>`;
     meta=`${val}/${t.per} ${esc(t.unit)} · неделя ${wv}/${wt}`}
-  else if(t.type==='count'){ctl=`<div class="step"><button onclick="APP.inc('${t.id}','${d}',-1)">−</button><input inputmode="numeric" value="${val||''}" placeholder="0" onchange="APP.setNum('${t.id}','${d}',this)"><button onclick="APP.inc('${t.id}','${d}',1)">+</button></div>`;
+  else if(t.type==='count'){left=`<span class="chk ${val>0?'on':''}">${val>0?I.ok:''}</span>`;right=`<div class="step"><button onclick="APP.inc('${t.id}','${d}',-1)">−</button><input inputmode="numeric" value="${val||''}" placeholder="0" onchange="APP.setNum('${t.id}','${d}',this)"><button onclick="APP.inc('${t.id}','${d}',1)">+</button></div>`;
     meta=`${wv}/${wt} на неделе`}
-  else{const dd=this.msDoneDate(t);ctl=`<button class="chk ${dd?'on':''}" onclick="APP.toggleMs('${t.id}','${d}')">${dd?I.ok:''}</button>`;
+  else{const dd=this.msDoneDate(t);left=`<button class="chk ${dd?'on':''}" onclick="APP.toggleMs('${t.id}','${d}')">${dd?I.ok:''}</button>`;
     meta=dd?`сделано ${fd(dd)}`:(t.deadline?`дедлайн ${fd(t.deadline)} · ${this.dleft(t.deadline)}`:'веха')}
+  const ctl=right;
 
   if(sk)meta='пропуск на этот день · '+meta;
   let hint='';
   
   let tb='';if(t.type==='check'&&t.mins&&!val){const run=this.tm&&this.tm.tid===t.id;tb=`<button class="tbtn ${run?'run':''}" onclick="event.stopPropagation();${run?'APP.tmOpen()':`APP.tmStart('${t.id}','${d}')`}">${run?'● идёт':'▶ '+t.mins+' мин'}</button>`}
   const dot=showGoal?`<span class="dot" style="display:inline-block;background:${this.gColor(t.goal)};margin-right:8px;vertical-align:middle"></span>`:'';
-  return `<div class="tk ${done?'done':''} ${sk?'skip':''} ${this._pop===t.id?'pop':''}" data-lp="t:${t.id}"><div class="t" onclick="APP.editT('${t.id}')"><b>${dot}${esc(t.title)}</b><div class="meta">${meta}</div>
+  return `<div class="tk ${done?'done':''} ${sk?'skip':''} ${this._pop===t.id?'pop':''}" data-lp="t:${t.id}">${left}<div class="t" onclick="APP.editT('${t.id}')"><b>${dot}${esc(t.title)}</b><div class="meta">${meta}</div>
     <div class="bar ${done?'c':''}"><i style="width:${Math.min(wv/wt,1)*100}%"></i></div>${hint?`<div class="hint">${hint}</div>`:''}${tb}</div>${ctl}</div>`;
 },
 startWizard(prog){this._ob=null;this.sub='onboard';if(prog)this._ob={step:1,prog,start:this.progStart(PROGRAMS.find(x=>x.id===prog)),weeks:12,days:0,pick:[],own:[],name:this.S.profile.name||'',partner:'',ok:false};window.scrollTo(0,0);this.render()},
@@ -949,7 +988,7 @@ areaChart(series,opts){const o=Object.assign({h:120,col:'#5EE0EE',id:'ac'+uid(),
     ${last?`<circle cx="${last[0]}" cy="${last[1]}" r="1.4" fill="#F2EDE2" style="filter:drop-shadow(0 0 5px ${o.col})"/>`:''}
     <line class="acx" x1="0" x2="0" y1="0" y2="40" stroke="rgba(242,237,226,.5)" stroke-width=".4" stroke-dasharray="1 1" style="display:none"/></svg>
     <div class="actip" style="display:none"></div>
-    ${o.labels?`<div class="row" style="justify-content:space-between;margin-top:4px"><span class="lbl" style="font-size:9.5px">${fd(series[0].d)}</span><span class="lbl" style="font-size:9.5px">${fd(series[series.length-1].d)}</span></div>`:''}</div>`},
+    ${o.labels?(o.ticks?`<div class="xl">${Array.from({length:o.ticks},(_,i)=>`<span>${fd(series[Math.round(i*(series.length-1)/(o.ticks-1))].d)}</span>`).join('')}</div>`:`<div class="row" style="justify-content:space-between;margin-top:4px"><span class="lbl" style="font-size:9.5px">${fd(series[0].d)}</span><span class="lbl" style="font-size:9.5px">${fd(series[series.length-1].d)}</span></div>`):''}</div>`},
 acBind(){document.querySelectorAll('.acw').forEach(w=>{if(w._b)return;w._b=1;const data=w._data;const mv=e=>{const r=w.querySelector('svg').getBoundingClientRect();const x=((e.touches?e.touches[0].clientX:e.clientX)-r.left)/r.width;const n=w._data.length;const i=Math.max(0,Math.min(n-1,Math.round(x*(n-1))));const it=w._data[i];const ln=w.querySelector('.acx'),tp=w.querySelector('.actip');ln.style.display='';ln.setAttribute('x1',(i/(n-1)*100).toFixed(1));ln.setAttribute('x2',(i/(n-1)*100).toFixed(1));
     tp.style.display='';tp.style.left=Math.min(Math.max(x*100,12),88)+'%';tp.innerHTML=`<b>${it.p==null?'—':Math.round(it.p*100)+'%'}</b><span>${fd(it.d)}</span>`};
   w.addEventListener('mousemove',mv);w.addEventListener('touchstart',mv,{passive:true});w.addEventListener('touchmove',mv,{passive:true});w.addEventListener('mouseleave',()=>{w.querySelector('.acx').style.display='none';w.querySelector('.actip').style.display='none'})})},
@@ -970,11 +1009,13 @@ pvHabits(){
   const trend=[];for(let i=29;i>=0;i--){const d=add(td,-i);trend.push({d,p:this.progDay(d,'all')})}
   const avg30=(()=>{const v=trend.map(t=>t.p).filter(x=>x!=null);return v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length*100):null})();
   const mode=this._gmode||'d';
-  let h=`<div class="card" style="padding:14px"><div class="row"><div><div class="lbl">Привычки</div><div style="font-size:22px;font-weight:900;letter-spacing:-.5px;margin-top:2px">${doneToday}/${schToday} <span class="mut" style="font-size:13px;font-weight:500">сегодня</span></div></div><span class="sp"></span><span class="pill c">ср. ${avg30??'—'}%</span></div>
-   <div class="bar c" style="margin-top:10px"><i style="width:${schToday?Math.round(doneToday/schToday*100):0}%"></i></div>
-   <div class="row" style="margin-top:12px"><div class="pseg mini sp"><button class="${mode==='d'?'on':''}" onclick="APP._gmode='d';APP.render()">По дням</button><button class="${mode==='w'?'on':''}" onclick="APP._gmode='w';APP.render()">По неделям</button></div><button class="btn sm pr" onclick="APP.editH(null)">${I.plus} Привычка</button></div></div>`;
-  this._series={main:trend};this._trendHtml=this.areaChart(trend,{h:64,labels:false});
-  h+='__S2__'+(mode==='w'?this.weekGrid(rows):this.monthGrid(hs,tt));this._trendHtml='';
+  const base=this._gm||td.slice(0,7),[gy,gmo]=base.split('-').map(Number),pm=iso(new Date(gy,gmo-2,1)).slice(0,7),nm=iso(new Date(gy,gmo,1)).slice(0,7);
+  let h=`<div class="card" style="padding:16px 18px"><div class="row"><div class="sp"><div class="lbl">${MONF[gmo-1]} ${gy}</div><div class="hbig">${doneToday}/${schToday} <span>${this.pl(schToday,'привычка','привычки','привычек')} сегодня</span></div></div>
+    ${mode==='d'?`<button class="ic" onclick="APP._gm='${pm}';APP.render()">${I.l}</button><button class="ic" onclick="APP._gm='${nm}';APP.render()">${I.r}</button>`:''}</div>
+   <div class="pline"><i style="width:${schToday?Math.round(doneToday/schToday*100):0}%"></i></div></div>
+   <div class="row hseg"><div class="pseg sp"><button class="${mode==='d'?'on':''}" onclick="APP._gmode='d';APP.render()">По дням</button><button class="${mode==='w'?'on':''}" onclick="APP._gmode='w';APP.render()">По неделям</button></div><button class="btn pr" onclick="APP.editH(null)">${I.plus} Привычка</button></div>`;
+  this._series={main:trend};this._trendHtml=this.areaChart(trend,{h:64,labels:false});this._trendAvg=avg30;this._noHead=true;
+  h+='__S2__'+(mode==='w'?this.weekGrid(rows):this.monthGrid(hs,tt));this._trendHtml='';this._noHead=false;
   const have=new Set(hs.map(x=>x.title));const lib=HABIT_LIB.filter(([t])=>!have.has(t));
   if(lib.length&&(!hs.length||this._libOpen))h+=this.hPicker(hs.length>0);
   else if(lib.length)h+=`<button class="btn gh w" onclick="APP._libOpen=true;APP.render()">Идеи привычек ${I.r}</button>`;
@@ -986,7 +1027,7 @@ weekGrid(rows){const td=today(),m0=this.monday(td),weeks=[];for(let i=11;i>=0;i-
   let h=`<div class="card" style="padding:14px 12px"><div class="lbl" style="text-align:center">12 недель · процент выполнения</div><div class="mgw" style="margin-top:12px"><div class="mg" style="--n:12;grid-template-columns:84px repeat(12,26px) 96px"><div class="mgh"></div>${weeks.map(w=>`<div class="mgh">${pd(w).getDate()}.${pad(pd(w).getMonth()+1)}</div>`).join('')}<div class="mgh" style="text-align:left;padding-left:8px">ср. · лучшая</div>`;
   rows.forEach(r=>{const[f,sc]=r.k==='h'?this.hFns(r.o):this.tFns(r.o);const vals=weeks.map(w=>{let a=0,b=0;for(let i=0;i<7;i++){const d=add(w,i);if(d>td)break;if(sc(d)){b++;if(f(d))a++}}return b?a/b:null});
     const v=vals.filter(x=>x!=null);const avg=v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length*100):null,best=v.length?Math.round(Math.max(...v)*100):null;
-    h+=`<div class="mgn"><span class="dot" style="background:${r.k==='h'?'var(--cb)':this.gColor(r.o.goal)}"></span>${esc(r.o.title)}</div>`+vals.map((p,i)=>`<div class="wgc" title="${p==null?'—':Math.round(p*100)+'%'}" style="${p==null?'opacity:.25':`background:rgba(0,196,212,${.12+p*.75});${p>=.85?'box-shadow:0 0 8px rgba(0,196,212,.5)':''}`}">${p==null?'':Math.round(p*100)}</div>`).join('')+`<div class="mgs"><b>${avg==null?'—':avg+'%'}</b> · <i>${best==null?'—':best+'%'}</i></div>`});
+    h+=`<div class="mgn"><span class="dot" style="background:${r.k==='h'?'var(--cb)':this.gColor(r.o.goal)}"></span><em>${esc(r.o.title)}</em></div>`+vals.map((p,i)=>`<div class="wgc" title="${p==null?'—':Math.round(p*100)+'%'}" style="${p==null?'opacity:.25':`background:rgba(0,196,212,${.12+p*.75});${p>=.85?'box-shadow:0 0 8px rgba(0,196,212,.5)':''}`}">${p==null?'':Math.round(p*100)}</div>`).join('')+`<div class="mgs"><b>${avg==null?'—':avg+'%'}</b> · <i>${best==null?'—':best+'%'}</i></div>`});
   return h+`</div></div></div>`},
 /* ---------- Задачи: неделя колонками + настроение ---------- */
 pvTasks(){const S=this.S,td=today();const m0=add(this.monday(td),7*(this._tw||0)),ds=[0,1,2,3,4,5,6].map(i=>add(m0,i));
@@ -994,17 +1035,19 @@ pvTasks(){const S=this.S,td=today();const m0=add(this.monday(td),7*(this._tw||0)
   const bars=ds.map((d,i)=>{const n=tk[i].length,k=tk[i].filter(y=>y.done).length;return {d,n,k,p:n?k/n:0}});
   const C=S.checkin||{};const ms=ds.map(d=>({d,e:C[d]&&+C[d].energy?+C[d].energy/5:null,s:C[d]&&+C[d].sleep?Math.min(+C[d].sleep/8,1):null,c:d>td?null:this.dayAll(d).p}));
   const line=(key,col)=>{const pts=ms.map((x,i)=>[i/6*100,x[key]==null?null:38-x[key]*34]).filter(p=>p[1]!=null);return pts.length>1?`<path d="${this.smooth(pts)}" fill="none" stroke="${col}" stroke-width="1.4" vector-effect="non-scaling-stroke" style="filter:drop-shadow(0 0 5px ${col})"/>`+pts.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="1.1" fill="${col}"/>`).join(''):''};
-  let h=`<div class="card"><div class="row"><button class="ic" onclick="APP._tw=(APP._tw||0)-1;APP.render()">${I.l}</button><div class="sp" style="text-align:center"><div class="lbl">Неделя</div><b>${fd(ds[0])} — ${fd(ds[6])}</b></div><button class="ic" onclick="APP._tw=(APP._tw||0)+1;APP.render()">${I.r}</button></div>
-   <div class="row" style="margin-top:14px;align-items:flex-end;gap:14px"><div class="sp"><div class="lbl">Общий прогресс</div><div class="tbars">${bars.map(b=>`<div><i style="height:${Math.max(6,b.p*100)}%;opacity:${b.n?1:.25}"></i><span>${WD[pd(b.d).getDay()]}</span></div>`).join('')}</div></div>
+  let h=`<div class="tgrid2"><div class="card"><div class="row" style="flex-wrap:wrap;gap:8px"><div class="sp"><div class="lbl">Неделя</div><span class="pill c" style="margin-top:6px;display:inline-block;font-size:11px;padding:6px 12px">${fd(ds[0])} — ${fd(ds[6])}</span></div>
+     <div class="row" style="gap:6px"><button class="ic" onclick="APP._tw=(APP._tw||0)-1;APP.render()">${I.l}</button><button class="btn sm ${this._tw?'':'gh'}" onclick="APP._tw=0;APP.render()">Эта неделя</button><button class="ic" onclick="APP._tw=(APP._tw||0)+1;APP.render()">${I.r}</button></div></div>
+   <div class="row" style="margin-top:16px;align-items:flex-end;gap:14px"><div class="sp"><div class="lbl">Общий прогресс</div><div class="tbars">${bars.map(b=>`<div><i style="height:${Math.max(6,b.p*100)}%;opacity:${b.n?1:.25}"></i><span>${WD[pd(b.d).getDay()]}</span></div>`).join('')}</div></div>
    <div style="text-align:center">${this.miniRing(tot?Math.round(done/tot*100):null,96)}<div class="small mut" style="margin-top:6px">${done} / ${tot} сделано</div></div></div></div>
-  <div class="tcols">${ds.map((d,i)=>{const a=this.dayAll(d),fut=d>td,p=fut||!a.n?0:a.p;return `<div class="tcol ${d===td?'td':''}"><div class="lbl" style="font-size:9.5px">${WDF[pd(d).getDay()]}</div><div class="small mut">${fd(d)}</div>
-     <div style="margin:8px auto 6px">${this.miniRing(fut||!a.n?null:Math.round(p*100),54)}</div>
-     ${tk[i].map(x=>`<label class="trow ${x.done?'done':''}"><input type="checkbox" ${x.done?'checked':''} onchange="APP.taskToggle('${x.id}')"><span onclick="event.preventDefault();APP.taskEdit('${x.id}')">${esc(x.title)}</span></label>`).join('')}
+  <div class="card"><div class="row"><div class="lbl sp">Состояние</div><span class="small" style="color:var(--cb)">● энергия</span><span class="small" style="color:var(--pb)">● сон</span><span class="small mut">● день</span></div>
+   <svg viewBox="0 0 100 40" preserveAspectRatio="none" style="width:100%;height:120px;overflow:visible;margin-top:14px">${[.25,.5,.75].map(y=>`<line x1="0" x2="100" y1="${38-y*34}" y2="${38-y*34}" stroke="rgba(255,255,255,.05)" stroke-width=".3"/>`).join('')}${line('c','rgba(242,237,226,.35)')}${line('s','#C4A4FF')}${line('e','#5EE0EE')}</svg>
+   <div class="row" style="justify-content:space-between;margin-top:6px">${ds.map(d=>`<span class="lbl" style="font-size:9.5px">${WD[pd(d).getDay()]}</span>`).join('')}</div></div></div>
+  <div class="tcols">${ds.map((d,i)=>{const a=this.dayAll(d),fut=d>td,p=fut||!a.n?0:a.p;const k=tk[i].filter(y=>y.done).length;return `<div class="tcol ${d===td?'td':''}"><div style="font-weight:800;font-size:13.5px;text-transform:capitalize">${WDF[pd(d).getDay()]}</div><div class="lbl" style="font-size:9px;margin-top:2px">${fd(d)}</div>
+     <div style="margin:10px auto 6px">${this.miniRing(fut||!a.n?null:Math.round(p*100),58)}</div><div class="lbl" style="font-size:9px;text-align:center;margin-bottom:6px">Задачи</div>
+     ${tk[i].map(x=>`<div class="trow ${x.done?'done':''}"><button class="tchk ${x.done?'on':''}" onclick="APP.taskToggle('${x.id}')">${x.done?I.ok2:''}</button><span class="sp" onclick="APP.taskEdit('${x.id}')">${esc(x.title)}</span></div>`).join('')}
      <form class="tadd" onsubmit="event.preventDefault();APP.taskAdd(this.q.value,'${d}');this.q.value=''"><input name="q" placeholder="+ задача" autocomplete="off"></form>
-     ${!tk[i].length&&i>0&&tk[i-1].length?`<button class="btn sm gh" style="width:100%;margin-top:4px;font-size:11px" onclick="APP.copyTasks('${ds[i-1]}','${d}')">Скопировать вчерашние</button>`:''}</div>`}).join('')}</div>
-  __S3__<div class="card"><div class="row"><div class="lbl sp">Состояние · из вечернего чек-ина</div><span class="small" style="color:var(--cb)">● энергия</span><span class="small" style="color:var(--pb)">● сон</span><span class="small mut">● день</span></div>
-   <svg viewBox="0 0 100 40" preserveAspectRatio="none" style="width:100%;height:90px;overflow:visible;margin-top:8px">${[.25,.5,.75].map(y=>`<line x1="0" x2="100" y1="${38-y*34}" y2="${38-y*34}" stroke="rgba(255,255,255,.05)" stroke-width=".3"/>`).join('')}${line('c','rgba(242,237,226,.35)')}${line('s','#C4A4FF')}${line('e','#5EE0EE')}</svg>
-   <div class="row" style="justify-content:space-between">${ds.map(d=>`<span class="lbl" style="font-size:9.5px">${WD[pd(d).getDay()]}</span>`).join('')}</div></div>`;
+     ${!tk[i].length&&i>0&&tk[i-1].length?`<button class="btn sm gh" style="width:100%;margin-top:4px;font-size:11px" onclick="APP.copyTasks('${ds[i-1]}','${d}')">Скопировать вчерашние</button>`:''}
+     <div class="tfoot"><span>Выполнено <b>${k}</b></span><span>Осталось <b>${tk[i].length-k}</b></span></div></div>`}).join('')}</div>`;
   return h},
 copyTasks(from,to){(this.S.tasks||[]).filter(x=>x.date===from).forEach(x=>this.S.tasks.push({id:'k'+uid(),title:x.title,date:to,done:'',t:Date.now()}));this.save();this.render();this.toast('Задачи скопированы')},
 /* ---------- Инсайты ---------- */
@@ -1017,15 +1060,15 @@ pvInsights(){const td=today(),rng=this._irng||30,scope=this._iscope||'all';
   const bestS=Math.max(0,...rows.map(x=>x.st)),weak=rows.filter(x=>x.rate!=null).sort((a,b)=>a.rate-b.rate)[0];
   const byRate=[...rows].filter(x=>x.rate!=null).sort((a,b)=>b.rate-a.rate).slice(0,6),bySt=[...rows].sort((a,b)=>b.st-a.st).slice(0,6);
   const medal=i=>`<span class="medal m${i}">${pad(i+1)}</span>`;
-  let h=`<div class="card" style="padding:14px"><div class="row" style="flex-wrap:wrap;gap:8px"><div class="sp"><div class="lbl">Стабильность</div><div style="font-size:36px;font-weight:900;letter-spacing:-1px;line-height:1.05;margin-top:2px">${avg??'—'}${avg!=null?'%':''}</div></div>
+  let h=`<div class="card" style="padding:16px 18px"><div class="row" style="flex-wrap:wrap;gap:8px"><div class="sp"><div class="lbl">Общая стабильность</div><div style="font-size:40px;font-weight:900;letter-spacing:-1.5px;line-height:1.05;margin-top:2px">${avg??'—'}${avg!=null?'%':''}</div></div>
     <div class="pseg mini"><button class="${scope==='all'?'on':''}" onclick="APP._iscope='all';APP.render()">Всё</button><button class="${scope==='h'?'on':''}" onclick="APP._iscope='h';APP.render()">Привычки</button><button class="${scope==='t'?'on':''}" onclick="APP._iscope='t';APP.render()">Тактики</button></div>
     <div class="pseg mini"><button class="${rng===30?'on':''}" onclick="APP._irng=30;APP.render()">30 дн.</button><button class="${rng===90?'on':''}" onclick="APP._irng=90;APP.render()">90 дн.</button></div></div>
-    <div style="margin-top:10px">${this.areaChart(series,{h:150,id:'acMain'})}</div></div>`;
+    <div style="margin-top:14px">${this.areaChart(series,{h:window.innerWidth>=1024?210:150,id:'acMain',ticks:window.innerWidth>=1024?7:4})}</div></div>`;
   this._series={main:series};
-  h+=`__S3__<div class="stat" style="grid-template-columns:repeat(2,1fr)"><div><b>${thisW??'—'}${thisW!=null?'%':''}</b><span>эта неделя</span></div><div><b style="color:${delta==null?'inherit':delta>=0?'var(--cb)':'var(--pb)'}">${delta==null?'—':(delta>0?'+':'')+delta+'%'}</b><span>к прошлой неделе</span></div><div><b>${bestS}</b><span>лучшая серия</span></div><div><b style="font-size:15px;line-height:1.2;display:block;margin-top:3px">${weak?esc(weak.r.o.title):'—'}</b><span>требует внимания</span></div></div>`;
+  h+=`<div class="stat s4"><div><b>${thisW??'—'}${thisW!=null?'%':''}</b><span>эта неделя</span></div><div><b style="color:${delta==null?'inherit':delta>=0?'var(--cb)':'var(--pb)'}">${delta==null?'—':(delta>0?'+':'')+delta+'%'}</b><span>к прошлой неделе</span></div><div><b style="display:flex;align-items:center;gap:6px;color:var(--pb)">${I.flame}${bestS}</b><span>лучшая серия</span></div><div><b style="font-size:15px;line-height:1.2;display:block;margin-top:3px">${weak?esc(weak.r.o.title):'—'}</b><span>требует внимания</span></div></div>`;
   const bar=(label,val,max,txt,col,i)=>`<div class="row" style="margin:10px 0 0"><div class="sp"><div class="row small">${medal(i)}<span class="sp" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${label}</span><b style="font-family:var(--mono);font-size:12px;color:${col}">${txt}</b></div><div class="bar ${col==='var(--cb)'?'c':''}" style="margin-left:30px"><i style="width:${max?Math.round(val/max*100):0}%"></i></div></div></div>`;
-  if(rows.length)h+=`<div class="card"><div class="lbl">Рейтинг · ${rng} дней</div>${byRate.map((x,i)=>bar(esc(x.r.o.title),x.rate,100,x.rate+'%','var(--cb)',i)).join('')}</div>
-   <div class="card"><div class="lbl">Лучшие серии</div>${bySt.map((x,i)=>bar(esc(x.r.o.title),x.st,Math.max(1,...bySt.map(y=>y.st)),x.st+' дн.'+(x.best>x.st?' · рекорд '+x.best:''),'var(--pb)',i)).join('')}</div>`;
+  if(rows.length)h+=`<div class="tgrid2"><div class="card"><div class="lbl">Рейтинг · ${rng} дней</div>${byRate.map((x,i)=>bar(esc(x.r.o.title),x.rate,100,x.rate+'%','var(--cb)',i)).join('')}</div>
+   <div class="card"><div class="lbl">Лучшие серии</div>${bySt.map((x,i)=>bar(esc(x.r.o.title),x.st,Math.max(1,...bySt.map(y=>y.st)),x.st+' дн.'+(x.best>x.st?' · рекорд '+x.best:''),'var(--pb)',i)).join('')}</div></div>`;
   else h+=`<div class="card empty">Инсайты появятся, когда будут привычки или тактики программы.</div>`;
   return h},
 hCard(x,days,kind){
@@ -1045,13 +1088,13 @@ monthGrid(hs,tt){
    <div class="mgw" style="margin-top:12px;opacity:.35"><div class="mg" style="--n:${n}"><div class="mgh"></div>${Array.from({length:n},(_,i)=>`<div class="mgh">${i+1}</div>`).join('')}<div class="mgh"></div>${[0,1,2].map(()=>`<div class="mgn"><span class="dot" style="background:var(--s3)"></span>&nbsp;</div>`+Array.from({length:n},()=>`<button class="mgc" disabled></button>`).join('')+`<div class="mgs"></div>`).join('')}</div></div>
    <div class="small mut" style="margin-top:10px;text-align:center">Добавь первую привычку — сетка оживёт.</div></div>`;
   const days=[];for(let i=1;i<=n;i++)days.push(y+'-'+pad(mo)+'-'+pad(i));
-  let h=`<div class="card" style="padding:14px 12px"><div class="row"><button class="ic" onclick="APP._gm='${pm}';APP.render()">${I.l}</button><div class="sp" style="text-align:center"><b>${MONF[mo-1]} ${y}</b></div><button class="ic" onclick="APP._gm='${nm}';APP.render()">${I.r}</button></div>
-  ${this._trendHtml?`<div style="margin-top:10px"><div class="lbl" style="font-size:9.5px">Тренд · 30 дней</div>${this._trendHtml}</div>`:''}
-  <div class="mgw" style="margin-top:12px"><div class="mg" style="--n:${n}"><div class="mgh"></div>${days.map(d=>`<div class="mgh ${d===td?'td':''}">${pd(d).getDate()}</div>`).join('')}<div class="mgh" style="text-align:left;padding-left:8px">% · серия · рекорд</div>`;
+  let h=`<div class="card" style="padding:14px 12px">${this._noHead?'':`<div class="row"><button class="ic" onclick="APP._gm='${pm}';APP.render()">${I.l}</button><div class="sp" style="text-align:center"><b>${MONF[mo-1]} ${y}</b></div><button class="ic" onclick="APP._gm='${nm}';APP.render()">${I.r}</button></div>`}
+  ${this._trendHtml?`<div class="trow2"><div class="lbl">Тренд</div><div class="sp">${this._trendHtml}</div><div style="text-align:center;margin-left:14px"><div class="lbl" style="font-size:9px;margin-bottom:4px">ср.</div>${this.miniRing(this._trendAvg,54,'#5EE0EE')}</div></div>`:''}
+  <div class="mgw" style="margin-top:12px"><div class="mg" style="--n:${n}"><div class="mgh first">Привычка</div>${days.map(d=>`<div class="mgh ${d===td?'td':''}">${pd(d).getDate()}</div>`).join('')}<div class="mgh" style="text-align:left;padding-left:10px">Статы</div>`;
   rows.forEach(r=>{const[f,sch]=r.k==='h'?this.hFns(r.o):this.tFns(r.o);
-    h+=`<button class="mgn" title="${esc(r.o.title)}" onclick="${r.k==='h'?`APP.editH('${r.o.id}')`:`APP.editT('${r.o.id}')`}"><span class="dot" style="background:${r.col}"></span>${esc(r.o.title)}</button>`+days.map(d=>{const fut=d>td,on=f(d),sc=sch(d),fz=this.frozen(d);
+    h+=`<button class="mgn" title="${esc(r.o.title)}" onclick="${r.k==='h'?`APP.editH('${r.o.id}')`:`APP.editT('${r.o.id}')`}"><span class="dot" style="background:${r.col}"></span><em>${esc(r.o.title)}</em></button>`+days.map(d=>{const fut=d>td,on=f(d),sc=sch(d),fz=this.frozen(d);
       const tog=r.k==='h'?`APP.hToggle('${r.o.id}','${d}')`:`APP.tHabitToggle('${r.o.id}','${d}')`;
-      return `<button class="mgc ${on?'on':''} ${fz&&!on?'fz':''} ${!sc&&!on&&!fz?'x':''} ${d===td?'td':''}" ${fut||r.k==='t'&&d<this.st?'disabled':`onclick="${tog}"`}></button>`}).join('')+(()=>{const[f2,s2,fr2]=r.k==='h'?this.hFns(r.o):this.tFns(r.o);const rt=this.rate(f2,s2,fr2,30);return `<div class="mgs"><b>${rt==null?'—':rt+'%'}</b> · ${this.streak(f2,s2,fr2)} · <i>${this.best(f2,s2,fr2)}</i></div>`})()});
+      return `<button class="mgc ${on?'on':''} ${fz&&!on?'fz':''} ${!sc&&!on&&!fz?'x':''} ${d===td?'td':''}" ${fut||r.k==='t'&&d<this.st?'disabled':`onclick="${tog}"`}>${on?I.ok2:''}</button>`}).join('')+(()=>{const[f2,s2,fr2]=r.k==='h'?this.hFns(r.o):this.tFns(r.o);const rt=this.rate(f2,s2,fr2,30);return `<div class="mgs"><b>${rt==null?'—':rt+'%'}</b><span class="fl">${I.flame}${this.streak(f2,s2,fr2)}</span><span class="st">${I.star}${this.best(f2,s2,fr2)}</span></div>`})()});
   h+=`</div></div></div>`;
   return h},
 hCal(id,m){
@@ -1096,14 +1139,19 @@ vGoals(){
   const S=this.S,th=+S.sprint.threshold||85,cw=this.curWeek(),W=this.W;
   if(!S.goals.length)return this.vPrograms(true);
   const P=this.prog(),modeTxt={score:'планка 85%',strict:'строгий режим',count:'копилка дней'}[this.mode];
-  let h=`<div class="lbl">${fd(this.st)} — ${fd(this.end())} · ${modeTxt}</div><div class="h1">${P?esc(P.name):'Программа'}</div>
-  <div class="row small mut" style="margin:8px 2px 4px"><span class="sp">День ${Math.max(1,Math.min(this.dayIndex(today()),this.sprintDays()))} из ${this.sprintDays()}${P?' · '+esc(P.origin):''}</span><button class="pill" onclick="APP.openSub('programs')">сменить</button></div>__S1____S2__`;
+  const nd=S.goals.filter(g=>this.gDone(g)).length,dayN=Math.max(1,Math.min(this.dayIndex(today()),this.sprintDays()));
+  let h=`<div class="lbl">${fd(this.st)} — ${fd(this.end())} · ${modeTxt}</div><div class="h1">${P?esc(P.name):'Программа'}</div>__S1____S2__
+  <div class="card"><div class="row" style="gap:14px">${this.ringTxt(S.goals.length?nd/S.goals.length:0,nd+'/'+S.goals.length,72)}<div class="sp"><div class="lbl">Целей достигнуто</div><div style="font-weight:800;font-size:15px;margin-top:3px">${P?esc(P.name):esc(S.sprint.title||'Программа')} · день ${dayN} из ${this.sprintDays()}</div><div class="small mut" style="margin-top:2px">${modeTxt}${P?' · '+esc(P.origin.split(',')[0]):''}</div></div><button class="pill" onclick="APP.openSub('programs')">сменить</button></div></div>
+  <div class="lbl" style="margin:18px 2px 0">Сферы жизни</div><div class="agrid">${AREAS.map(a=>{const gs=S.goals.filter(g=>g.area===a[0]),k=gs.filter(g=>this.gDone(g)).length;return `<button class="at ${gs.length?'has':''}" onclick="APP.editGoal(null,'${a[0]}')"><span class="ai">${aIco(a[0])}</span><span class="sp"><b>${a[1]}</b><span>${gs.length} ${this.pl(gs.length,'цель','цели','целей')} · ${k} ${this.pl(k,'достигнута','достигнуты','достигнуто')}</span></span></button>`}).join('')}</div>
+  <div class="lbl" style="margin:18px 2px 0">Приоритеты</div>`;
   S.goals.forEach((g,gi)=>{
     const ms=g.metrics||[],tot=S.tactics.filter(t=>t.goal===g.id&&t.total&&!ms.some(m=>m.auto==='t:'+t.id)),ts=S.tactics.filter(t=>t.goal===g.id);
-    h+=`<div class="card"><div class="row"><span class="dot" style="background:${g.color}"></span><span class="h2 sp" style="font-size:17px">${esc(g.title)}</span>
-      ${gi?`<button class="btn sm gh" onclick="APP.moveGoal(${gi})" aria-label="Выше">↑</button>`:''}<button class="btn sm gh" onclick="APP.editGoal('${g.id}')">${I.ed}</button></div>
-      <div class="small mut" style="margin-top:6px">${esc(g.result)||'Результат не описан'}</div>
-      <div class="row" style="margin-top:8px;flex-wrap:wrap;gap:6px"><span class="pill">ср. ${this.avg(g.id)??'—'}%</span>${g.date?`<span class="pill p">${fd(g.date)} · ${this.dleft(g.date)}</span>`:''}</div>`;
+    const ar=AREAS.find(a=>a[0]===g.area),dn=this.gDone(g),pr=this.gProg(g);
+    h+=`<div class="card gcard"><div class="row" style="align-items:flex-start"><div class="sp"><div class="gt">${esc(g.title)}</div><span class="gst ${dn?'ok':''}">${dn?'Достигнута':'В работе'}</span></div>
+      ${gi?`<button class="ic" onclick="APP.moveGoal(${gi})" aria-label="Выше">↑</button>`:''}<button class="ic" onclick="APP.editGoal('${g.id}')">${I.ed}</button></div>
+      <div class="gmeta">${ar?esc(ar[1]):'без сферы'}${g.date?` · ${this.dleft(g.date)}`:''}${this.avg(g.id)!=null?` · ср. ${this.avg(g.id)}%`:''}</div>
+      <div class="gbar"><i style="width:${Math.round(pr*100)}%"></i></div>
+      ${g.result?`<div class="small mut" style="margin-top:10px">${esc(g.result)}</div>`:''}`;
     ms.forEach(m=>{const v=this.metricVal(m),s=+m.start||0,tg=+m.target||0;const p=tg===s?(v===tg?1:0):Math.max(0,Math.min((v-s)/(tg-s),1));
       h+=`<div style="margin-top:14px"><div class="row small"><span class="sp">${esc(m.name)}</span>
         ${m.auto?`<b>${v}</b>`:`<input style="width:80px;padding:5px 8px;text-align:right" inputmode="decimal" value="${v}" onchange="APP.setMetric('${g.id}','${m.id}',this.value)">`}
@@ -1140,7 +1188,9 @@ tDesc(t){if(t.dfrom&&t.dto)return `каждый день, ${fd(t.dfrom)} — ${f
   if(t.total)x+=` · итог ${t.total}`;if(t.tod)x+=' · '+this.TOD[t.tod].toLowerCase();if(t.mins)x+=` · таймер ${t.mins} мин`;if((+t.from||1)>1||+t.to)x+=` · недели ${t.from||1}–${t.to||this.W}`;if(t.active===false)x+=' · на паузе';return x},
 open(html){$('sheet').innerHTML=html;this.tr($('sheet'));$('modal').classList.add('on')},
 close(){$('modal').classList.remove('on');this._hcal=0},
-editGoal(id){const g=id?this.goal(id):{id:uid(),title:'',result:'',color:COLORS[this.S.goals.length%COLORS.length],date:'',woop:{},metrics:[]};
+gDone(g){if(g.done)return true;const ms=g.metrics||[];if(!ms.length)return false;return ms.every(m=>{const v=this.metricVal(m),s=+m.start||0,t=+m.target||0;return t>s?v>=t:t<s?v<=t:v===t})},
+gProg(g){const ms=g.metrics||[];if(g.done)return 1;if(ms.length){const ps=ms.map(m=>{const v=this.metricVal(m),s=+m.start||0,t=+m.target||0;return t===s?(v===t?1:0):Math.max(0,Math.min((v-s)/(t-s),1))});return ps.reduce((a,b)=>a+b,0)/ps.length}const a=this.avg(g.id);return a==null?0:a/100},
+editGoal(id,area){const g=id?this.goal(id):{id:uid(),title:'',result:'',color:COLORS[this.S.goals.length%COLORS.length],date:'',woop:{},metrics:[],area:area||''};
   this._g=JSON.parse(JSON.stringify(g));this._gNew=!id;this.gForm()},
 gForm(){const g=this._g,w=g.woop||{};
   const opts=m=>`<option value="">вручную</option><option value="paid" ${m.auto==='paid'?'selected':''}>оплаты из воронки</option>`+
@@ -1148,6 +1198,8 @@ gForm(){const g=this._g,w=g.woop||{};
   this.open(`<div class="row"><div class="h2 sp">${this._gNew?'Новая цель':'Цель'}</div><button class="btn sm gh" onclick="APP.close()">Закрыть</button></div>
   <div class="f"><label class="lbl">Короткое название</label><input id="gT" value="${esc(g.title)}" placeholder="Спорт"></div>
   <div class="f"><label class="lbl">Результат: что будет правдой в конце спринта</label><textarea id="gR" placeholder="Конкретно и измеримо, с датой">${esc(g.result)}</textarea></div>
+  <div class="f2"><div class="f"><label class="lbl">Сфера жизни</label><select id="gA"><option value="">не выбрана</option>${AREAS.map(a=>`<option value="${a[0]}" ${g.area===a[0]?'selected':''}>${a[1]}</option>`).join('')}</select></div>
+   <div class="f"><label class="lbl">Статус</label><select id="gDn"><option value="">в работе</option><option value="1" ${g.done?'selected':''}>достигнута</option></select></div></div>
   <div class="f2"><div class="f"><label class="lbl">Ключевая дата</label><input type="date" id="gD" value="${g.date||''}"></div>
    <div class="f"><label class="lbl">Цвет</label><div class="seg">${COLORS.map(c=>`<button class="${g.color===c?'on':''}" style="width:34px;height:34px;padding:0;display:grid;place-items:center" onclick="APP.gKeep();APP._g.color='${c}';APP.gForm()"><span class="dot" style="background:${c};width:14px;height:14px"></span></button>`).join('')}</div></div></div>
   <hr><details ${w.obstacle||w.plan?'open':''}><summary class="lbl" style="cursor:pointer">Препятствие и план (WOOP)</summary>
@@ -1162,7 +1214,7 @@ gForm(){const g=this._g,w=g.woop||{};
     <button class="btn sm del" onclick="APP.gKeep();APP._g.metrics.splice(${i},1);APP.gForm()">Удалить метрику</button></div>`).join('')}
   <div class="row" style="margin-top:18px"><button class="btn pr sp" onclick="APP.gSave()">Сохранить</button>${this._gNew?'':`<button class="btn del" onclick="APP.gDel()">Удалить цель</button>`}</div>`)},
 gKeep(){const g=this._g,v=id=>($(id)||{}).value;if(!$('gT'))return;
-  g.title=v('gT');g.result=v('gR');g.date=v('gD');g.woop={wish:v('wW'),outcome:v('wO'),obstacle:v('wB'),plan:v('wP')};
+  g.title=v('gT');g.result=v('gR');g.date=v('gD');g.area=v('gA')||'';g.done=!!v('gDn');g.woop={wish:v('wW'),outcome:v('wO'),obstacle:v('wB'),plan:v('wP')};
   (g.metrics||[]).forEach((m,i)=>{if(!$('mN'+i))return;m.name=v('mN'+i);m.unit=v('mU'+i);m.start=+v('mS'+i)||0;m.target=+v('mT'+i)||0;m.cur=+v('mC'+i)||0;m.auto=v('mA'+i)})},
 gSave(){this.gKeep();const g=this._g;if(!g.title.trim())return this.toast('Нужно название');
   const i=this.S.goals.findIndex(x=>x.id===g.id);if(i<0)this.S.goals.push(g);else this.S.goals[i]=g;this.save();this.close();this.render();this.toast('Сохранено')},
