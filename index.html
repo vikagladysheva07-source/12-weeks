@@ -529,7 +529,8 @@ render(){
   this._tix=Object.fromEntries(this.S.tactics.map(t=>[t.id,t]));
   let body;
   if(this.simple()&&(this.tab==='habits'||this.tab==='goals'))this.tab='home';
-  if(this.sub==='programs')body=this.vPrograms();
+  if(this.sub==='onboard')body=this.vOnboard();
+  else if(this.sub==='programs')body=this.vPrograms();
   else if(this.sub==='deals')body=this.vDeals();
   else body={home:this.vHome,habits:this.vHabits,goals:this.vGoals,week:this.vWeek,me:this.vMe}[this.tab].call(this);
   $('app').innerHTML=this.top()+this.dash(body);this.tr($('app'));
@@ -540,7 +541,7 @@ render(){
   const P=this.prog();
   $('snav').innerHTML=`<div class="sn-brand"><span class="sn-mark"></span><div><b>${esc(this.S.sprint.title||'12 недель')}</b><span>${P?esc(P.origin.split(',')[0]):'система достижения целей'}</span></div></div>
    <div class="sn-items">${tabs.map(([k,l,ic])=>`<button class="${this.tab===k&&!this.sub?'on':''}" onclick="APP.go('${k}')">${ic}<span>${l}</span></button>`).join('')}
-   <button class="${this.sub==='programs'?'on':''}" onclick="APP.openSub('programs')">${I.goal}<span>Каталог программ</span></button></div>
+</div>
    <div class="sn-foot" onclick="APP.go('me')"><span class="ava">${esc(this.initial())}</span><div class="sp"><b>${esc(this.S.profile.name||'Гость')}</b><span class="cloud ${this.cloud==='on'?'on':this.cloud==='err'?'err':''}"><i></i>${this.user?(this.cloud==='on'?'в облаке':this.cloud==='err'?'нет связи':'синхронизация'):'без аккаунта'}</span></div></div>`;
   this.tr($('nav'));this.tr($('snav'));
 },
@@ -558,7 +559,6 @@ ring(v,th,cap){const r=52,C=2*Math.PI*r,p=v==null?0:v/100,a=th/100*360-90,x=59+r
 /* ================= ГЛАВНОЕ ================= */
 vHome(){
   const S=this.S,td=today();
-  if(!S.goals.length&&!S.habits.length&&!(S.tasks||[]).length)return this.vOnboard();
   if(S.goals.length&&today()>this.end()&&!this._skipFinal)return this.vFinal();
   const inS=S.goals.length>0&&this.day>=this.st&&this.day<=this.end();
   const w=inS?this.weekOf(this.day):0,sc=inS?this.score(w):null,th=+S.sprint.threshold||85;
@@ -578,7 +578,9 @@ vHome(){
     </div></div>`;
   if(inS&&this.mode==='strict'&&this.day===td&&this.dayFull(add(td,-1))===false&&this.dayIndex(td)>1)h+=`<div class="card small" style="border-color:rgba(196,164,255,.4)"><b>Вчера день не закрыт.</b> По правилам программы счётчик начался заново: сегодня день 1. Сбросов за программу: ${this.strictResets()}.</div>`;
   if(inS&&this.prog())h+=`<div class="row small mut" style="margin:2px 2px 0"><span class="dot" style="background:${this.prog().color}"></span><span class="sp">${esc(this.prog().name)} · день ${Math.max(1,this.dayIndex(this.day))} из ${this.sprintDays()}</span></div>`;
-  if(!S.goals.length)h+=`<div class="card small mut">Привычки и задачи работают сами по себе. Когда будет готовность к программе — <button class="btn sm" style="margin-left:4px" onclick="APP._ob=null;APP.go('goals')">выбрать программу</button></div>`;
+  if(!S.goals.length)h+=`<div class="card"><div class="lbl">Начало</div><div class="h2" style="margin-top:6px">Выбери программу</div>
+    <div class="small mut" style="margin-top:6px">12 недель, Winter Arc, 75 Hard, Теория шести месяцев — любая идёт на одном движке: цели, тактики, счёт недели и разбор. Привычки и задачи работают уже сейчас, без программы.</div>
+    <button class="btn pr w" style="margin-top:14px" onclick="APP.startWizard()">Выбрать программу ${I.r}</button></div>`;
   else if(td<this.st)h+=`<div class="card small mut">Спринт начинается ${fd(this.st)}. Отмечать можно уже сейчас.</div>`;
   const wf=inS?(S.weeks[w]||{}).focus:'',ytop=((S.checkin||{})[add(this.day,-1)]||{}).top;
   h+=`<button class="quote" style="margin:14px 0;display:block;width:100%;text-align:left;${ytop?'':'opacity:.55'}" onclick="APP.editTop('${add(this.day,-1)}')"><span class="lbl" style="display:block;margin-bottom:2px">Главное на ${this.day===td?'сегодня':'этот день'}</span>${ytop?esc(ytop):'Задать одно дело, которое важнее остальных'}</button>`;
@@ -765,6 +767,7 @@ tRow(t,w,showGoal){
   return `<div class="tk ${done?'done':''} ${sk?'skip':''} ${this._pop===t.id?'pop':''}" data-lp="t:${t.id}"><div class="t" onclick="APP.editT('${t.id}')"><b>${dot}${esc(t.title)}</b><div class="meta">${meta}</div>
     <div class="bar ${done?'c':''}"><i style="width:${Math.min(wv/wt,1)*100}%"></i></div>${hint?`<div class="hint">${hint}</div>`:''}${tb}</div>${ctl}</div>`;
 },
+startWizard(prog){this._ob=null;this.sub='onboard';if(prog)this._ob={step:1,prog,start:this.progStart(PROGRAMS.find(x=>x.id===prog)),weeks:12,days:0,pick:[],own:[],name:this.S.profile.name||'',partner:'',ok:false};window.scrollTo(0,0);this.render()},
 vOnboard(){if(!this._ob)this._ob={step:0,start:this.st,weeks:this.W,pick:[],own:[],name:this.S.profile.name||'',partner:'',ok:false};return this.obView()},
 obSet(k,v){this._ob[k]=v},
 obView(){const o=this._ob,st=o.step;
@@ -777,7 +780,7 @@ obView(){const o=this._ob,st=o.step;
      return `<button class="card" style="width:100%;text-align:left;display:block;margin:8px 0;${on?'border-color:rgba(196,164,255,.6);box-shadow:var(--glow),inset 0 1px 0 rgba(255,255,255,.12)':''}" onclick="APP._ob.prog='${p.id}';APP._ob.start=APP.progStart(PROGRAMS.find(x=>x.id==='${p.id}'));APP._ob.weeks=${p.weeks||12};APP._ob.days=${p.days||0};APP.render()">
       <div class="row"><span style="font-family:var(--mono);color:${p.color};font-size:18px">${p.glyph}</span><b class="sp">${esc(p.name)}</b><span class="pill">${len}</span></div>
       <div class="small mut" style="margin-top:4px">${esc(p.origin)}${p.mode==='strict'?' · строгий режим':p.mode==='count'?' · копилка дней':''}</div></button>`}).join('')}
-   ${nav(false,o.prog?"APP._ob.step=1;APP.render()":"APP.toast('Выбери программу')",'Дальше')}
+   ${nav("APP.sub=null;APP._ob=null;APP.render()",o.prog?"APP._ob.step=1;APP.render()":"APP.toast('Выбери программу')",'Дальше')}
    <div class="card small mut" style="margin-top:14px">Уже есть аккаунт? <button class="btn sm" style="margin-left:4px" onclick="APP.go('me')">Войти</button></div>`;
   if(st===1)return `<div class="lbl">Шаг 1 из 4</div><div class="h1">Когда<br>стартуем</div>${dots}
    <div class="card"><div class="f"><label class="lbl">Дата старта</label><input type="date" value="${o.start}" onchange="APP.obSet('start',this.value)"><div class="small dim" style="margin-top:6px">Лучше понедельник: неделя считается с него.</div></div>
@@ -823,7 +826,7 @@ obAddT(gid){const t=prompt('Тактика (начни с глагола): на�
 obFinish(){const o=this._ob;if(!o.ok)return this.toast('Поставь галочку обязательства');if(!(o.name||'').trim())return this.toast('Напиши имя');
   const S=this.S,P=PROGRAMS.find(x=>x.id===o.prog)||PROGRAMS[0];S.sprint.start=o.start;S.sprint.weeks=+o.weeks||12;S.sprint.days=o.days||0;S.sprint.program=P.id;S.sprint.mode=P.mode;S.sprint.title=P.name;S.sprint.partner=o.partner||'';S.profile.name=o.name.trim();
   S.goals=o.goals;S.tactics=o.tactics.filter(t=>t.on).map(t=>{delete t.on;return t});S.commit={name:S.profile.name,date:today(),start:o.start};S.pref=S.pref||{};S.pref.simple=true;
-  this._ob=null;this.day=this.clampDay(today());this.save();this.buzz([20,40,20]);this.go('home');this.toast('Программа начата')},
+  this._ob=null;this.sub=null;this.day=this.clampDay(today());this.save();this.buzz([20,40,20]);this.go('home');this.toast('Программа начата')},
 vOnboardOld(){return `<div class="lbl">Система 12 недель</div><div class="h1">Год длиной<br>в 12 недель</div>
   <div class="card"><p style="margin-top:0">Три цели на 12 недель, под каждой несколько тактик: конкретных действий, которые полностью под твоим контролем. Каждый день отмечаешь сделанное, раз в неделю смотришь счёт. Закрыто 85% тактик недели — значит, цель будет достигнута.</p>
   <div class="f"><label class="lbl">Дата старта (лучше понедельник)</label><input type="date" id="obStart" value="${this.st}"></div>
@@ -836,8 +839,8 @@ obStart(ex){const s=$('obStart').value||this.st;this.S.sprint.start=s;this.S.spr
   this.day=this.clampDay(today());this.save();this.go(ex?'home':'goals')},
 
 /* ================= ПРОГРАММЫ ================= */
-vPrograms(){const cur=this.S.sprint.program,inS=this.S.goals.length>0;
-  let h=`<button class="back" onclick="APP.sub=null;APP.render()">${I.l} Назад</button><div class="lbl">Каталог</div><div class="h1">Программы</div>
+vPrograms(asTab){const cur=this.S.sprint.program,inS=this.S.goals.length>0;
+  let h=`${asTab?'':`<button class="back" onclick="APP.sub=null;APP.render()">${I.l} Назад</button>`}<div class="lbl">Каталог</div><div class="h1">Программы</div>
   <div class="small mut" style="margin:6px 0 14px">Одна длинная программа за раз. Короткие челленджи добавляются внутрь неё во вкладке «Программа».</div>`;
   PROGRAMS.forEach(p=>{const on=inS&&cur===p.id;const len=p.days?p.days+' дней':p.fixed?'1 окт — 1 янв':p.weeks+' недель';
     const modeTxt={score:'планка 85%',strict:'строгий: пропуск — заново',count:'копилка дней'}[p.mode];
@@ -852,7 +855,7 @@ startProgram(id){const p=PROGRAMS.find(x=>x.id===id);if(!p)return;
     const S=this.S;S.archive.push({sprint:JSON.parse(JSON.stringify(S.sprint)),goals:S.goals,tactics:S.tactics,log:S.log,weeks:S.weeks,avg:this.avg()});
     S.goals=[];S.tactics=[];S.log={};S.weeks={};S.skip={};S.commit=null;this.save()}
   this._ob={step:1,prog:id,start:this.progStart(p),weeks:p.weeks||12,days:p.days||0,pick:[],own:[],name:this.S.profile.name||'',partner:'',ok:false};
-  this.sub=null;this.tab='home';this.render()},
+  this.sub='onboard';this.tab='home';window.scrollTo(0,0);this.render()},
 progStart(p){const t=today();if(p.fixed){const y=pd(t).getFullYear();let s=y+'-'+p.fixed[0];if(t>s)s=t;return s}return p.days?t:nextMonday()},
 addMini(i){const m=MINI[i];if(!m)return;const name=m.tactics.length?m.name:(prompt('Название челленджа')||'').trim();if(!name)return;
   const days=m.tactics.length?m.days:(+prompt('Сколько дней?',7)||7),st=today(),en=add(st,days-1);
@@ -890,11 +893,13 @@ vHabits(){
     <div class="stat" style="grid-template-columns:repeat(2,1fr)"><div><b>${thisW??'—'}${thisW!=null?'%':''}</b><span>эта неделя</span></div><div><b style="color:${delta==null?'inherit':delta>=0?'var(--cb)':'var(--pb)'}">${delta==null?'—':(delta>0?'+':'')+delta+'%'}</b><span>к прошлой неделе</span></div>
      <div><b>${bestS}</b><span>лучшая серия</span></div><div><b style="font-size:15px;line-height:1.2;display:block;margin-top:3px">${weak?esc(weak.r.o.title):'—'}</b><span>требует внимания</span></div></div>`;
   }
-  h+=`__S2__<div class="gh3"><span class="lbl" style="color:var(--tx)">Мои привычки</span><span class="sp"></span><button class="btn sm" onclick="APP.editH(null)">${I.plus} Привычка</button></div>`;
-  if(!hs.length)h+=`<div class="card empty">Привычки живут вне спринта и не входят в счёт недели. Вода, растяжка, дневник — всё, что хочешь делать каждый день.</div>`;
-  h+=`<div class="rl" data-rl="habits">`;hs.forEach(x=>h+=this.hCard(x,days,'h'));h+=`</div>`;
   const tt=S.tactics.filter(t=>this.tDaily(t));
-  h+=this.monthGrid(hs,tt);
+  h+='__S2__'+this.monthGrid(hs,tt);
+  h+=`<div class="gh3"><span class="lbl" style="color:var(--tx)">Мои привычки</span><span class="sp"></span><button class="btn sm" onclick="APP.editH(null)">${I.plus} Привычка</button></div>`;
+  if(!hs.length)h+=`<div class="card empty">Привычки живут вне программы и не входят в счёт недели. Вода, растяжка, дневник — всё, что хочешь делать каждый день.</div>`;
+  else{h+=`<div class="card rl" data-rl="habits" style="padding:2px 14px">`;hs.forEach(x=>{const[f,sc,fr]=this.hFns(x),st=this.streak(f,sc,fr),b=this.best(f,sc,fr),r=this.rate(f,sc,fr,30),on=this.hOn(x,td);
+    h+=`<div class="list-item" data-id="${x.id}" data-lp="h:${x.id}"><span class="drag">⋮⋮</span><span class="dot" style="background:var(--cb)"></span><button class="sp" style="text-align:left" onclick="APP.hCal('${x.id}')"><div>${esc(x.title)}</div><div class="small mut">${st?'серия '+st:'без серии'}${b>st?' · рекорд '+b:''}${r!=null?' · '+r+'% за 30 дн.':''}${x.days.length<7?' · '+x.days.slice().sort((p,q)=>((p+6)%7)-((q+6)%7)).map(d=>WD[d]).join(' '):''}</div></button>
+     <button class="chk ${on?'on':''}" style="width:34px;height:34px;border-radius:10px" onclick="APP.hToggle('${x.id}','${td}')">${on?I.ok2:''}</button><button class="ic" onclick="APP.editH('${x.id}')">${I.ed}</button></div>`});h+=`</div>`}
   h+='__S3__';
   if(streaks.length>1){const byRate=[...streaks].filter(x=>x.rate!=null).sort((a,b)=>b.rate-a.rate).slice(0,6),bySt=[...streaks].sort((a,b)=>b.st-a.st).slice(0,6);
     const bar=(label,val,max,txt,col)=>`<div style="margin:9px 0"><div class="row small"><span class="sp" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${label}</span><b style="font-family:var(--mono);font-size:12px;color:${col}">${txt}</b></div><div class="bar ${col==='var(--cb)'?'c':''}"><i style="width:${max?Math.round(val/max*100):0}%"></i></div></div>`;
@@ -918,13 +923,13 @@ monthGrid(hs,tt){
   const rows=[...hs.map(x=>({k:'h',o:x,col:'var(--cb)'})),...tt.map(t=>({k:'t',o:t,col:this.gColor(t.goal)}))];
   if(!rows.length)return '';
   const days=[];for(let i=1;i<=n;i++)days.push(y+'-'+pad(mo)+'-'+pad(i));
-  let h=`<div class="card" style="padding:14px 12px"><div class="row"><button class="ic" onclick="APP._gm='${pm}';APP.render()">${I.l}</button><div class="sp" style="text-align:center"><div class="lbl">Сетка месяца</div><b>${MONF[mo-1]} ${y}</b></div><button class="ic" onclick="APP._gm='${nm}';APP.render()">${I.r}</button></div>
+  let h=`<div class="card" style="padding:14px 12px"><div class="row"><button class="ic" onclick="APP._gm='${pm}';APP.render()">${I.l}</button><div class="sp" style="text-align:center"><div class="lbl">Привычки по дням</div><b>${MONF[mo-1]} ${y}</b></div><button class="ic" onclick="APP._gm='${nm}';APP.render()">${I.r}</button></div>
   <div class="mgw" style="margin-top:12px"><div class="mg" style="--n:${n}"><div class="mgh"></div>${days.map(d=>`<div class="mgh ${d===td?'td':''}">${pd(d).getDate()}</div>`).join('')}<div class="mgh" style="text-align:left;padding-left:8px">% · серия · рекорд</div>`;
   rows.forEach(r=>{const[f,sch]=r.k==='h'?this.hFns(r.o):this.tFns(r.o);
     h+=`<div class="mgn" title="${esc(r.o.title)}"><span class="dot" style="background:${r.col}"></span>${esc(r.o.title)}</div>`+days.map(d=>{const fut=d>td,on=f(d),sc=sch(d),fz=this.frozen(d);
       const tog=r.k==='h'?`APP.hToggle('${r.o.id}','${d}')`:`APP.tHabitToggle('${r.o.id}','${d}')`;
       return `<button class="mgc ${on?'on':''} ${fz&&!on?'fz':''} ${!sc&&!on&&!fz?'x':''} ${d===td?'td':''}" ${fut||r.k==='t'&&d<this.st?'disabled':`onclick="${tog}"`}></button>`}).join('')+(()=>{const[f2,s2,fr2]=r.k==='h'?this.hFns(r.o):this.tFns(r.o);const rt=this.rate(f2,s2,fr2,30);return `<div class="mgs"><b>${rt==null?'—':rt+'%'}</b> · ${this.streak(f2,s2,fr2)} · <i>${this.best(f2,s2,fr2)}</i></div>`})()});
-  h+=`</div></div><div class="small dim" style="margin-top:10px">Точка — сделано, пунктир — заморожен день. Тап по точке меняет отметку, сетка листается вбок.</div></div>`;
+  h+=`</div></div></div>`;
   return h},
 hCal(id,m){
   const x=this.S.habits.find(h=>h.id===id);if(!x)return;this._hcal=1;
@@ -958,7 +963,7 @@ hArch(id,v){const x=this.S.habits.find(h=>h.id===id);x.archived=v;this.save();th
 /* ================= ЦЕЛИ ================= */
 vGoals(){
   const S=this.S,th=+S.sprint.threshold||85,cw=this.curWeek(),W=this.W;
-  if(!S.goals.length)return this.vOnboard();
+  if(!S.goals.length)return this.vPrograms(true);
   const P=this.prog(),modeTxt={score:'планка 85%',strict:'строгий режим',count:'копилка дней'}[this.mode];
   let h=`<div class="lbl">${fd(this.st)} — ${fd(this.end())} · ${modeTxt}</div><div class="h1">${P?esc(P.name):'Программа'}</div>
   <div class="row small mut" style="margin:8px 2px 4px"><span class="sp">День ${Math.max(1,Math.min(this.dayIndex(today()),this.sprintDays()))} из ${this.sprintDays()}${P?' · '+esc(P.origin):''}</span><button class="pill" onclick="APP.openSub('programs')">сменить</button></div>__S1____S2__`;
@@ -994,7 +999,7 @@ vGoals(){
    <text x="100" y="${60-th*.6-1.5}" text-anchor="end" font-size="3.6" fill="rgba(242,237,226,.6)" font-family="DM Mono">${th}%</text></svg>`;
   h+=`</div>`;
   h+=`<div class="row" style="flex-wrap:wrap"><button class="btn sp" onclick="APP.editGoal(null)">${I.plus} Цель</button><button class="btn sp" onclick="APP.miniSheet()">${I.plus} Короткий челлендж</button></div>
-   <button class="btn gh w" style="margin-top:8px" onclick="APP.openSub('programs')">Каталог программ ${I.r}</button>
+
 `;
   return h;
 },
@@ -1094,7 +1099,7 @@ dDel(){if(!confirm('Удалить контакт?'))return;this.S.del=[...(this
 
 /* ================= НЕДЕЛЯ (план + сетка + разбор) ================= */
 vWeek(){
-  const S=this.S;if(!S.goals.length)return this.vOnboard();
+  const S=this.S;if(!S.goals.length)return `<div class="lbl">Неделя</div><div class="h1">Счёт<br>недели</div><div class="card"><div class="small mut">Счёт недели, разбор и группа появляются внутри программы. Выбери её — и первая неделя начнёт считаться.</div><button class="btn pr w" style="margin-top:14px" onclick="APP.startWizard()">Выбрать программу ${I.r}</button></div>`;
   const w=this.wk||this.curWeek(),ds=this.wDays(w),td=today(),ws=S.weeks[w]||{},th=+S.sprint.threshold||85;
   const ts=S.tactics.filter(t=>this.activeIn(t,w)),miss=ts.filter(t=>!this.wDone(t,w));
   let h=`<div class="row"><button class="ic" onclick="APP.wk=${Math.max(w-1,1)};APP.render()">${I.l}</button>
