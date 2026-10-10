@@ -275,6 +275,22 @@ details>summary::before{content:"▸ ";color:var(--pb)}details[open]>summary::be
 .tundo{margin-left:10px;padding:4px 10px;border-radius:8px;background:rgba(155,111,232,.25);border:1px solid rgba(196,164,255,.5);color:#fff;font-weight:700;font-size:13px}
 .toast.act{pointer-events:auto}
 @media(min-width:1024px){.daynav{top:0}}
+.hpg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.hp{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:14px 12px 12px;border-radius:18px;text-align:left;background:linear-gradient(160deg,rgba(255,255,255,.07),rgba(255,255,255,.025));border:1px solid var(--line2);box-shadow:inset 0 1px 0 rgba(255,255,255,.08);transition:transform .12s,border-color .15s,background .15s;min-height:118px}
+.hp:active{transform:scale(.97)}
+.hp .hpi{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:rgba(255,255,255,.06);color:var(--c);box-shadow:inset 0 1px 0 rgba(255,255,255,.1)}
+.hp .hpi svg{width:20px;height:20px}
+.hp b{font-size:13.5px;font-weight:600;line-height:1.2;color:var(--tx)}
+.hp .lbl{font-size:9.5px;margin-top:auto}
+.hp i{position:absolute;top:10px;right:10px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:12px;color:#fff;background:linear-gradient(180deg,#B48BFF,#7A4BE0);opacity:0;transform:scale(.6);transition:.15s}
+.hp i svg{width:12px;height:12px}
+.hp.on{border-color:rgba(180,139,255,.7);background:linear-gradient(160deg,rgba(155,111,232,.28),rgba(155,111,232,.08));box-shadow:0 0 0 1px rgba(180,139,255,.25),0 8px 24px rgba(122,75,224,.25),inset 0 1px 0 rgba(255,255,255,.14)}
+.hp.on .hpi{background:rgba(255,255,255,.14);color:#fff}
+.hp.on i{opacity:1;transform:scale(1)}
+.btn:disabled{opacity:.45}
+.hpact{position:sticky;bottom:84px;z-index:3;gap:8px;margin:14px -8px -8px;padding:10px 8px 8px;border-radius:16px;background:linear-gradient(180deg,rgba(16,13,27,0),rgba(16,13,27,.92) 30%);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+@media(min-width:1024px){.hpact{bottom:12px}}
+@media(min-width:1024px){.hpg{grid-template-columns:repeat(3,1fr)}}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 .chip{display:inline-flex;align-items:center;gap:6px;padding:9px 13px 9px 10px;border-radius:14px;border:1px solid var(--line2);background:var(--s2);font-size:13.5px;color:var(--tx);box-shadow:inset 0 1px 0 rgba(255,255,255,.08);transition:.15s}
 .chip svg{color:var(--pb);width:14px;height:14px}
@@ -429,7 +445,9 @@ const I18N_BASE={'пн':'Mon','вт':'Tue','ср':'Wed','чт':'Thu','пт':'Fri
  '2–5 человек, которые видят счёт недели друг друга. Самый сильный способ не бросить.':'2–5 people who see each other’s weekly score. The strongest way not to quit.',
  '«Разбор с Claude» копирует полную картину недели с инструкцией: вставь в чат — и получишь разбор как от партнёра.':'“Review with Claude” copies the full week with instructions: paste it into the chat and get a partner-level review.',
  'Появятся после':'Will appear after','чек-инов, сейчас':'check-ins, now','страниц':'pages','фото прогресса':'progress photo','Диета без читмилов, без алкоголя':'Diet with no cheat meals, no alcohol','подряд':'in a row','из':'of','заново':'again','в день':'per day','на улице':'outdoors','минут':'min','секунд':'sec','Утро':'Morning','День':'Day','Вечер':'Evening','В любое время':'Anytime','Программа':'Program','Неделя':'Week','Я':'Me','Каталог программ':'Program catalog','Сегодня':'Today','Вчера':'Yesterday','Завтра':'Tomorrow','Язык':'Language','Русский':'Russian','Настройки':'Settings','Аккаунт':'Account','Данные':'Data','О системе':'About','Закрыть':'Close','Сохранить':'Save'};
-const HABIT_LIB=[['Стакан воды после пробуждения','m'],['Зарядка 10 минут','m'],['Медитация 10 минут','m'],['10 000 шагов','d'],['Чтение 20 страниц','e'],['Без соцсетей после 21:00','e'],['Подъём до 7:00','m'],['Дневник: 3 строки','e'],['Английский 15 минут','d'],['Прогулка 30 минут','d'],['Без сахара','d'],['Отбой до 23:00','e'],['Планирование завтра','e'],['Холодный душ','m']];
+const HABIT_LIB=[['Стакан воды после пробуждения','m','drop'],['Зарядка 10 минут','m','dumb'],['Медитация 10 минут','m','lotus'],['10 000 шагов','d','steps'],['Чтение 20 страниц','e','book'],['Без соцсетей после 21:00','e','phone'],['Подъём до 7:00','m','sun'],['Дневник: 3 строки','e','pen'],['Английский 15 минут','d','chat'],['Прогулка 30 минут','d','tree'],['Без сахара','d','ban'],['Отбой до 23:00','e','moon'],['Планирование завтра','e','list'],['Холодный душ','m','snow']];
+const HICO={drop:'<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/>',dumb:'<path d="M6 7v10M18 7v10M3 9v6M21 9v6M6 12h12"/>',lotus:'<path d="M12 20c-4 0-8-3-8-7 3 0 5 1 6 3-1-3 0-7 2-10 2 3 3 7 2 10 1-2 3-3 6-3 0 4-4 7-8 7z"/>',steps:'<path d="M7 4c2 0 3 2 3 5s-1 5-3 5-3-2-3-5 1-5 3-5zM7 16c1.5 0 2 1 2 2s-.5 2-2 2-2-1-2-2 .5-2 2-2zM17 8c2 0 3 2 3 5s-1 5-3 5-3-2-3-5 1-5 3-5z"/>',book:'<path d="M4 5a2 2 0 0 1 2-2h14v16H6a2 2 0 0 0-2 2V5zM4 19a2 2 0 0 0 2 2h14"/>',phone:'<path d="M7 3h10a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM3 3l18 18"/>',sun:'<circle cx="12" cy="13" r="4"/><path d="M12 3v3M4 13H1M23 13h-3M5.6 6.6l2.1 2.1M18.4 6.6l-2.1 2.1M3 21h18"/>',pen:'<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>',chat:'<path d="M21 12a8 8 0 0 1-11.6 7.1L4 21l1.9-5.4A8 8 0 1 1 21 12z"/>',tree:'<path d="M12 22v-6M8 16l4-12 4 12H8zM6 16h12"/>',ban:'<circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/>',moon:'<path d="M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10z"/>',list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',snow:'<path d="M12 2v20M2 12h20M5 5l14 14M19 5L5 19"/>'};
+const hIco=k=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${HICO[k]||HICO.drop}</svg>`;
 function nextMonday(){const d=new Date();const w=d.getDay();if(w!==1)d.setDate(d.getDate()+((8-w)%7||7));return iso(d)}
 
 const APP={
@@ -958,8 +976,7 @@ pvHabits(){
   this._series={main:trend};this._trendHtml=this.areaChart(trend,{h:64,labels:false});
   h+='__S2__'+(mode==='w'?this.weekGrid(rows):this.monthGrid(hs,tt));this._trendHtml='';
   const have=new Set(hs.map(x=>x.title));const lib=HABIT_LIB.filter(([t])=>!have.has(t));
-  if(lib.length&&(!hs.length||this._libOpen))h+=`<div class="card"><div class="row"><div class="lbl sp">${hs.length?'Ещё идеи':'Быстрый старт · одно касание'}</div>${hs.length?`<button class="btn sm gh" onclick="APP._libOpen=false;APP.render()">скрыть</button>`:''}</div>
-    <div class="chips">${lib.map(([t])=>`<button class="chip" onclick="APP.addLib(${HABIT_LIB.findIndex(x=>x[0]===t)})">${I.plus}<span>${esc(t)}</span></button>`).join('')}</div></div>`;
+  if(lib.length&&(!hs.length||this._libOpen))h+=this.hPicker(hs.length>0);
   else if(lib.length)h+=`<button class="btn gh w" onclick="APP._libOpen=true;APP.render()">Идеи привычек ${I.r}</button>`;
   const arch=S.habits.filter(x=>x.archived);if(arch.length)h+=`<div class="card"><div class="lbl">Архив</div>${arch.map(x=>`<div class="list-item"><span class="sp mut">${esc(x.title)}</span><button class="btn sm" onclick="APP.hArch('${x.id}',false)">Вернуть</button></div>`).join('')}</div>`;
   return h;
@@ -1064,6 +1081,13 @@ hKeep(){if($('hT')){this._h.title=$('hT').value;this._h.when=$('hW').value}},
 hSave(){this.hKeep();const x=this._h;if(!x.title.trim())return this.toast('Назови привычку');if(!x.days.length)return this.toast('Выбери хотя бы один день');
   const i=this.S.habits.findIndex(h=>h.id===x.id);if(i<0)this.S.habits.push(x);else this.S.habits[i]=x;this.save();this.close();this.render()},
 hDel(){if(!confirm('Удалить привычку вместе с историей? Можно вместо этого отправить в архив.'))return;this.S.habits=this.S.habits.filter(h=>h.id!==this._h.id);this.save();this.close();this.render()},
+hPicker(more){const have=new Set(this.S.habits.map(x=>x.title)),sel=this._pick||(this._pick=new Set());const TOD={m:'утро',d:'день',e:'вечер'};
+  const tiles=HABIT_LIB.map(([t,tod,ic],i)=>have.has(t)?'':`<button class="hp ${sel.has(i)?'on':''}" onclick="APP.pickT(${i})"><span class="hpi">${hIco(ic)}</span><b>${esc(t)}</b><span class="lbl">${TOD[tod]||''}</span><i>${I.check||'✓'}</i></button>`).join('');
+  return `<div class="card hpick"><div class="row"><div class="sp"><div class="lbl">${more?'Ещё идеи':'Начни с привычек'}</div><div class="h2" style="margin-top:4px">${more?'Выбери, что добавить':'Выбери 2–3 на старт'}</div></div>${more?`<button class="ic" onclick="APP._libOpen=false;APP._pick=null;APP.render()">${I.x||'×'}</button>`:''}</div>
+    <div class="hpg">${tiles}</div>
+    <div class="row hpact"><button class="btn gh" onclick="APP._pick=null;APP.editH()">Своя</button><button class="btn pr sp" ${sel.size?'':'disabled'} onclick="APP.pickAdd()">${sel.size?`Добавить ${sel.size} ${this.pl(sel.size,'привычку','привычки','привычек')}`:'Выбери привычки'}</button></div></div>`},
+pickT(i){const sel=this._pick||(this._pick=new Set());sel.has(i)?sel.delete(i):sel.add(i);this.buzz(6);this.render()},
+pickAdd(){const sel=this._pick||new Set();if(!sel.size)return;[...sel].sort((a,b)=>a-b).forEach(i=>{const [t,tod]=HABIT_LIB[i];if(!this.S.habits.some(h=>h.title===t))this.S.habits.push(H(t,{tod}))});const n=sel.size;this._pick=null;this._libOpen=false;this.save();this.buzz(14);this.render();this.toast(`Добавлено: ${n} ${this.pl(n,'привычка','привычки','привычек')}`,false)},
 addLib(i){const [t,tod]=HABIT_LIB[i];if(this.S.habits.some(h=>h.title===t))return;this.S.habits.push(H(t,{tod}));this.save();this.buzz(10);this.render();this.toast('Добавлено: '+t,false)},
 hArch(id,v){const x=this.S.habits.find(h=>h.id===id);x.archived=v;this.save();this.close();this.render()},
 
